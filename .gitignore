@@ -1,0 +1,38 @@
+# Sistema operativo
+.DS_Store
+._*
+Thumbs.db
+desktop.ini
+
+# Archivos temporales de Office / LibreOffice / draw.io
+~$*
+.~lock.*#
+*.tmp
+*.bkp
+*.dtmp
+.$*.bkp
+.$*.dtmp
+
+# Editores e IDE
+.vscode/
+.idea/
+*.swp
+*~
+
+# Claude Code (configuración local)
+.claude/
+
+# Scripts y salidas temporales (el generador de index.html no vive en el repo)
+__pycache__/
+*.pyc
+scratchpad/
+tmp/
+
+# Futuras etapas de experimentación (EXP-1 a EXP-3)
+# Resultados crudos pesados de JMeter; los resúmenes sí se versionan
+*.jtl
+jmeter.log
+results/raw/
+.env
+*.kubeconfig
+kubeconfig

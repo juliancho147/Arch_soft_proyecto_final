@@ -1,0 +1,9 @@
+* text=auto eol=lf
+
+*.md text
+*.html text linguist-documentation
+*.svg text linguist-documentation
+*.drawio text linguist-documentation
+
+*.pdf binary
+*.xlsx binary

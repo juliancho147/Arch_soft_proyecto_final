@@ -1,0 +1,179 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1540" height="990" viewBox="-10 -30 1540 990" font-family="Helvetica, Arial, sans-serif">
+<rect x="-10" y="-30" width="1540" height="990" fill="white"/>
+<defs><marker id="ms" markerWidth="12" markerHeight="10" refX="11" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L12,5 L0,10 z" fill="#1F3864"/></marker><marker id="ma" markerWidth="12" markerHeight="10" refX="11" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L11,5 L0,10" fill="none" stroke="#B45F06" stroke-width="1.6"/></marker><marker id="md" markerWidth="12" markerHeight="10" refX="11" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L11,5 L0,10" fill="none" stroke="#555555" stroke-width="1.6"/></marker><marker id="mdx" markerWidth="12" markerHeight="10" refX="11" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L11,5 L0,10" fill="none" stroke="#999999" stroke-width="1.6"/></marker><marker id="mr" markerWidth="14" markerHeight="12" refX="13" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L14,6 L0,12 z" fill="white" stroke="#6C8EBF" stroke-width="1.6"/></marker></defs>
+<text x="20" y="16" font-size="18" font-weight="bold">Vista de Información — Diagrama de clases UML 2.0</text>
+<rect x="30" y="50" width="240" height="150" rx="10" fill="#F6EFF9" stroke="#9673A6" stroke-width="2"/>
+<text x="40" y="69" font-size="13" font-weight="bold">«package» mensaje_promotor</text>
+<rect x="45" y="97" width="210" height="80" fill="#FFFFFF" stroke="#9673A6" stroke-width="2"/>
+<text x="150.0" y="113" font-size="11" font-weight="bold" text-anchor="middle">dato_crudo</text>
+<line x1="45" y1="120" x2="255" y2="120" stroke="#9673A6" stroke-width="1.5"/>
+<text x="53" y="135" font-size="10">id_promotor</text>
+<text x="53" y="149" font-size="10">contenido</text>
+<text x="53" y="163" font-size="10">recibido_en</text>
+<rect x="340" y="50" width="240" height="160" rx="10" fill="#EAF1FB" stroke="#6C8EBF" stroke-width="2"/>
+<text x="350" y="69" font-size="13" font-weight="bold">«package» esquema_dato_transformado</text>
+<rect x="355" y="90" width="210" height="94" fill="#FFFFFF" stroke="#6C8EBF" stroke-width="2"/>
+<text x="460.0" y="106" font-size="11" font-weight="bold" text-anchor="middle">dato_transformado</text>
+<line x1="355" y1="113" x2="565" y2="113" stroke="#6C8EBF" stroke-width="1.5"/>
+<text x="363" y="128" font-size="10">id_dato</text>
+<text x="363" y="142" font-size="10">id_promotor</text>
+<text x="363" y="156" font-size="10">contenido</text>
+<text x="363" y="170" font-size="10">estado</text>
+<rect x="340" y="250" width="240" height="170" rx="10" fill="#EAF1FB" stroke="#6C8EBF" stroke-width="2"/>
+<text x="350" y="269" font-size="13" font-weight="bold">«package» esquema_cuarentena</text>
+<rect x="355" y="290" width="210" height="108" fill="#FFFFFF" stroke="#6C8EBF" stroke-width="2"/>
+<text x="460.0" y="306" font-size="11" font-weight="bold" text-anchor="middle">registro_invalido</text>
+<line x1="355" y1="313" x2="565" y2="313" stroke="#6C8EBF" stroke-width="1.5"/>
+<text x="363" y="328" font-size="10">id_registro</text>
+<text x="363" y="342" font-size="10">id_promotor</text>
+<text x="363" y="356" font-size="10">contenido</text>
+<text x="363" y="370" font-size="10">motivo</text>
+<text x="363" y="384" font-size="10">fecha</text>
+<rect x="660" y="50" width="840" height="552" rx="10" fill="#EAF1FB" stroke="#6C8EBF" stroke-width="2"/>
+<text x="670" y="69" font-size="13" font-weight="bold">«package» esquema_catalogo</text>
+<rect x="675" y="90" width="230" height="94" fill="#FFFFFF" stroke="#6C8EBF" stroke-width="2"/>
+<text x="790.0" y="106" font-size="11" font-weight="bold" text-anchor="middle">evento</text>
+<line x1="675" y1="113" x2="905" y2="113" stroke="#6C8EBF" stroke-width="1.5"/>
+<text x="683" y="128" font-size="10">id_evento</text>
+<text x="683" y="142" font-size="10">id_promotor</text>
+<text x="683" y="156" font-size="10">nombre</text>
+<text x="683" y="170" font-size="10">fecha</text>
+<rect x="965" y="97" width="230" height="80" fill="#FFFFFF" stroke="#6C8EBF" stroke-width="2"/>
+<text x="1080.0" y="113" font-size="11" font-weight="bold" text-anchor="middle">localidad</text>
+<line x1="965" y1="120" x2="1195" y2="120" stroke="#6C8EBF" stroke-width="1.5"/>
+<text x="973" y="135" font-size="10">id_localidad</text>
+<text x="973" y="149" font-size="10">id_evento</text>
+<text x="973" y="163" font-size="10">nombre</text>
+<rect x="1255" y="97" width="230" height="80" fill="#FFFFFF" stroke="#6C8EBF" stroke-width="2"/>
+<text x="1370.0" y="113" font-size="11" font-weight="bold" text-anchor="middle">precio</text>
+<line x1="1255" y1="120" x2="1485" y2="120" stroke="#6C8EBF" stroke-width="1.5"/>
+<text x="1263" y="135" font-size="10">id_localidad</text>
+<text x="1263" y="149" font-size="10">valor</text>
+<text x="1263" y="163" font-size="10">incluye_impuesto</text>
+<rect x="965" y="470" width="230" height="108" fill="#FFFFFF" stroke="#6C8EBF" stroke-width="2"/>
+<text x="1080.0" y="486" font-size="11" font-weight="bold" text-anchor="middle">asiento</text>
+<line x1="965" y1="493" x2="1195" y2="493" stroke="#6C8EBF" stroke-width="1.5"/>
+<text x="973" y="508" font-size="10">id_asiento</text>
+<text x="973" y="522" font-size="10">id_localidad</text>
+<text x="973" y="536" font-size="10">fila</text>
+<text x="973" y="550" font-size="10">numero</text>
+<text x="973" y="564" font-size="10">estado</text>
+<rect x="30" y="440" width="240" height="250" rx="10" fill="#F6EFF9" stroke="#9673A6" stroke-width="2"/>
+<text x="40" y="459" font-size="13" font-weight="bold">«package» mensaje_reserva</text>
+<rect x="45" y="480" width="210" height="94" fill="#FFFFFF" stroke="#9673A6" stroke-width="2"/>
+<text x="150.0" y="496" font-size="11" font-weight="bold" text-anchor="middle">solicitud_reserva</text>
+<line x1="45" y1="503" x2="255" y2="503" stroke="#9673A6" stroke-width="1.5"/>
+<text x="53" y="518" font-size="10">id_solicitud</text>
+<text x="53" y="532" font-size="10">id_correlacion</text>
+<text x="53" y="546" font-size="10">id_asiento</text>
+<text x="53" y="560" font-size="10">id_comprador</text>
+<rect x="45" y="594" width="210" height="66" fill="#FFFFFF" stroke="#9673A6" stroke-width="2"/>
+<text x="150.0" y="610" font-size="11" font-weight="bold" text-anchor="middle">respuesta_reserva</text>
+<line x1="45" y1="617" x2="255" y2="617" stroke="#9673A6" stroke-width="1.5"/>
+<text x="53" y="632" font-size="10">id_correlacion</text>
+<text x="53" y="646" font-size="10">resultado</text>
+<rect x="340" y="440" width="240" height="250" rx="10" fill="#FFF8E1" stroke="#D6B656" stroke-width="2"/>
+<text x="350" y="459" font-size="13" font-weight="bold">«package» memoria</text>
+<rect x="355" y="487" width="210" height="80" fill="#FFFFFF" stroke="#D6B656" stroke-width="2"/>
+<text x="460.0" y="503" font-size="11" font-weight="bold" text-anchor="middle">bloqueo</text>
+<line x1="355" y1="510" x2="565" y2="510" stroke="#D6B656" stroke-width="1.5"/>
+<text x="363" y="525" font-size="10">id_asiento</text>
+<text x="363" y="539" font-size="10">id_comprador</text>
+<text x="363" y="553" font-size="10">expira_en</text>
+<rect x="355" y="587" width="210" height="66" fill="#FFFFFF" stroke="#D6B656" stroke-width="2"/>
+<text x="460.0" y="603" font-size="11" font-weight="bold" text-anchor="middle">asiento_en_cache</text>
+<line x1="355" y1="610" x2="565" y2="610" stroke="#D6B656" stroke-width="1.5"/>
+<text x="363" y="625" font-size="10">id_asiento</text>
+<text x="363" y="639" font-size="10">estado</text>
+<rect x="950" y="640" width="550" height="190" rx="10" fill="#EAF1FB" stroke="#6C8EBF" stroke-width="2"/>
+<text x="960" y="659" font-size="13" font-weight="bold">«package» esquema_reserva</text>
+<rect x="965" y="687" width="230" height="108" fill="#FFFFFF" stroke="#6C8EBF" stroke-width="2"/>
+<text x="1080.0" y="703" font-size="11" font-weight="bold" text-anchor="middle">reserva</text>
+<line x1="965" y1="710" x2="1195" y2="710" stroke="#6C8EBF" stroke-width="1.5"/>
+<text x="973" y="725" font-size="10">id_reserva</text>
+<text x="973" y="739" font-size="10">id_asiento</text>
+<text x="973" y="753" font-size="10">id_comprador</text>
+<text x="973" y="767" font-size="10">estado</text>
+<text x="973" y="781" font-size="10">precio_total</text>
+<rect x="1255" y="680" width="230" height="122" fill="#FFFFFF" stroke="#6C8EBF" stroke-width="2"/>
+<text x="1370.0" y="696" font-size="11" font-weight="bold" text-anchor="middle">pago</text>
+<line x1="1255" y1="703" x2="1485" y2="703" stroke="#6C8EBF" stroke-width="1.5"/>
+<text x="1263" y="718" font-size="10">id_pago</text>
+<text x="1263" y="732" font-size="10">id_reserva</text>
+<text x="1263" y="746" font-size="10">clave_idempotencia</text>
+<text x="1263" y="760" font-size="10">pasarela</text>
+<text x="1263" y="774" font-size="10">estado</text>
+<text x="1263" y="788" font-size="10">monto</text>
+<rect x="660" y="640" width="270" height="290" rx="10" fill="#EAF1FB" stroke="#6C8EBF" stroke-width="2"/>
+<text x="670" y="659" font-size="13" font-weight="bold">«package» esquema_parametrizacion</text>
+<rect x="675" y="680" width="230" height="108" fill="#FFFFFF" stroke="#6C8EBF" stroke-width="2"/>
+<text x="790.0" y="696" font-size="11" font-weight="bold" text-anchor="middle">regla</text>
+<line x1="675" y1="703" x2="905" y2="703" stroke="#6C8EBF" stroke-width="1.5"/>
+<text x="683" y="718" font-size="10">id_regla</text>
+<text x="683" y="732" font-size="10">tipo</text>
+<text x="683" y="746" font-size="10">version</text>
+<text x="683" y="760" font-size="10">contenido</text>
+<text x="683" y="774" font-size="10">porcentaje_trafico</text>
+<rect x="675" y="808" width="230" height="94" fill="#FFFFFF" stroke="#6C8EBF" stroke-width="2"/>
+<text x="790.0" y="824" font-size="11" font-weight="bold" text-anchor="middle">parametro_pasarela</text>
+<line x1="675" y1="831" x2="905" y2="831" stroke="#6C8EBF" stroke-width="1.5"/>
+<text x="683" y="846" font-size="10">id_pasarela</text>
+<text x="683" y="860" font-size="10">nombre</text>
+<text x="683" y="874" font-size="10">estado</text>
+<text x="683" y="888" font-size="10">credencial</text>
+<rect x="30" y="720" width="240" height="160" rx="10" fill="#F6EFF9" stroke="#9673A6" stroke-width="2"/>
+<text x="40" y="739" font-size="13" font-weight="bold">«package» mensaje_trafico</text>
+<rect x="45" y="760" width="210" height="94" fill="#FFFFFF" stroke="#9673A6" stroke-width="2"/>
+<text x="150.0" y="776" font-size="11" font-weight="bold" text-anchor="middle">evento_trafico</text>
+<line x1="45" y1="783" x2="255" y2="783" stroke="#9673A6" stroke-width="1.5"/>
+<text x="53" y="798" font-size="10">ip</text>
+<text x="53" y="812" font-size="10">dispositivo</text>
+<text x="53" y="826" font-size="10">cuenta</text>
+<text x="53" y="840" font-size="10">hora</text>
+<rect x="340" y="720" width="240" height="170" rx="10" fill="#EAF1FB" stroke="#6C8EBF" stroke-width="2"/>
+<text x="350" y="739" font-size="13" font-weight="bold">«package» esquema_auditoria</text>
+<rect x="355" y="753" width="210" height="108" fill="#FFFFFF" stroke="#6C8EBF" stroke-width="2"/>
+<text x="460.0" y="769" font-size="11" font-weight="bold" text-anchor="middle">evidencia</text>
+<line x1="355" y1="776" x2="565" y2="776" stroke="#6C8EBF" stroke-width="1.5"/>
+<text x="363" y="791" font-size="10">id_evidencia</text>
+<text x="363" y="805" font-size="10">ip</text>
+<text x="363" y="819" font-size="10">dispositivo</text>
+<text x="363" y="833" font-size="10">cuenta</text>
+<text x="363" y="847" font-size="10">regla</text>
+<polyline points="255,137 355,137" fill="none" stroke="#999999" stroke-width="1.6" stroke-dasharray="7,5"  marker-end="url(#mdx)"/>
+<rect x="266.0" y="129.0" width="78" height="16" fill="white" fill-opacity="0.92"/>
+<text x="305.0" y="141.0" font-size="10.5" text-anchor="middle" fill="#999999">«transforma»</text>
+<polyline points="565,137 675,137" fill="none" stroke="#999999" stroke-width="1.6" stroke-dasharray="7,5"  marker-end="url(#mdx)"/>
+<rect x="590.0" y="129.0" width="60" height="16" fill="white" fill-opacity="0.92"/>
+<text x="620.0" y="141.0" font-size="10.5" text-anchor="middle" fill="#999999">«publica»</text>
+<polyline points="560,184 560,290" fill="none" stroke="#999999" stroke-width="1.6" stroke-dasharray="7,5"  marker-end="url(#mdx)"/>
+<rect x="527.0" y="229.0" width="66" height="16" fill="white" fill-opacity="0.92"/>
+<text x="560.0" y="241.0" font-size="10.5" text-anchor="middle" fill="#999999">«inválido»</text>
+<polyline points="905,137 965,137" fill="none" stroke="#444444" stroke-width="1.6" />
+<rect x="917.0" y="129.0" width="36" height="16" fill="white" fill-opacity="0.92"/>
+<text x="935.0" y="141.0" font-size="10.5" text-anchor="middle" fill="#444444">1 : *</text>
+<polyline points="1195,137 1255,137" fill="none" stroke="#444444" stroke-width="1.6" />
+<rect x="1207.0" y="129.0" width="36" height="16" fill="white" fill-opacity="0.92"/>
+<text x="1225.0" y="141.0" font-size="10.5" text-anchor="middle" fill="#444444">1 : 1</text>
+<polyline points="1080,177 1080,470" fill="none" stroke="#444444" stroke-width="1.6" />
+<rect x="1062.0" y="315.5" width="36" height="16" fill="white" fill-opacity="0.92"/>
+<text x="1080.0" y="327.5" font-size="10.5" text-anchor="middle" fill="#444444">1 : *</text>
+<polyline points="1080,578 1080,687" fill="none" stroke="#444444" stroke-width="1.6" />
+<rect x="1062.0" y="624.5" width="36" height="16" fill="white" fill-opacity="0.92"/>
+<text x="1080.0" y="636.5" font-size="10.5" text-anchor="middle" fill="#444444">1 : *</text>
+<polyline points="1255,741 1195,741" fill="none" stroke="#444444" stroke-width="1.6" />
+<rect x="1207.0" y="733.0" width="36" height="16" fill="white" fill-opacity="0.92"/>
+<text x="1225.0" y="745.0" font-size="10.5" text-anchor="middle" fill="#444444">* : 1</text>
+<polyline points="565,527 965,527" fill="none" stroke="#444444" stroke-width="1.6" />
+<rect x="738.0" y="519.0" width="54" height="16" fill="white" fill-opacity="0.92"/>
+<text x="765.0" y="531.0" font-size="10.5" text-anchor="middle" fill="#444444">0..1 : 1</text>
+<polyline points="565,620 620,620 620,560 965,560" fill="none" stroke="#444444" stroke-width="1.6" />
+<rect x="717.0" y="552.0" width="36" height="16" fill="white" fill-opacity="0.92"/>
+<text x="735.0" y="564.0" font-size="10.5" text-anchor="middle" fill="#444444">* : 1</text>
+<polyline points="255,527 355,527" fill="none" stroke="#999999" stroke-width="1.6" stroke-dasharray="7,5"  marker-end="url(#mdx)"/>
+<rect x="275.0" y="519.0" width="60" height="16" fill="white" fill-opacity="0.92"/>
+<text x="305.0" y="531.0" font-size="10.5" text-anchor="middle" fill="#999999">«origina»</text>
+<polyline points="255,807 355,807" fill="none" stroke="#999999" stroke-width="1.6" stroke-dasharray="7,5"  marker-end="url(#mdx)"/>
+<rect x="278.0" y="799.0" width="54" height="16" fill="white" fill-opacity="0.92"/>
+<text x="305.0" y="811.0" font-size="10.5" text-anchor="middle" fill="#999999">«genera»</text>
+</svg>

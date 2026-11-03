@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1730" height="1440" viewBox="-10 -30 1730 1440" font-family="Helvetica, Arial, sans-serif">
+<rect x="-10" y="-30" width="1730" height="1440" fill="white"/>
+<defs><marker id="qs" markerWidth="12" markerHeight="10" refX="11" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L12,5 L0,10 z" fill="#1F3864"/></marker><marker id="qa" markerWidth="12" markerHeight="10" refX="11" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L11,5 L0,10" fill="none" stroke="#B45F06" stroke-width="1.6"/></marker><marker id="qr" markerWidth="12" markerHeight="10" refX="11" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L11,5 L0,10" fill="none" stroke="#7F8FA6" stroke-width="1.6"/></marker><marker id="qf" markerWidth="12" markerHeight="10" refX="11" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L11,5 L0,10" fill="none" stroke="#C00000" stroke-width="1.6"/></marker></defs>
+<text x="28" y="15" font-size="11" font-weight="bold">Vista de Concurrencia — Secuencia de una reserva (UML 2.0)</text>
+<rect x="30" y="60" width="180" height="100" fill="#FFFFFF" stroke="#333333" stroke-width="2"/>
+<text x="120.0" y="106.5" font-size="11" text-anchor="middle">«actor»</text>
+<text x="120.0" y="121.5" font-size="11" text-anchor="middle" font-weight="bold">actor_comprador</text>
+<rect x="240" y="60" width="180" height="100" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+<text x="330.0" y="106.5" font-size="11" text-anchor="middle">«component»</text>
+<text x="330.0" y="121.5" font-size="11" text-anchor="middle" font-weight="bold">componente_api_gateway</text>
+<rect x="450" y="60" width="180" height="100" fill="#E1D5E7" stroke="#9673A6" stroke-width="2"/>
+<text x="540.0" y="91.5" font-size="11" text-anchor="middle">«queue»</text>
+<text x="540.0" y="106.5" font-size="11" text-anchor="middle" font-weight="bold">cola_solicitud</text>
+<text x="540.0" y="121.5" font-size="11" text-anchor="middle">▸ Encolar solicitudes</text>
+<text x="540.0" y="136.5" font-size="11" text-anchor="middle">▸ Acotar el tamaño de colas</text>
+<rect x="660" y="60" width="180" height="100" fill="#E1D5E7" stroke="#9673A6" stroke-width="2"/>
+<text x="750.0" y="106.5" font-size="11" text-anchor="middle">«queue»</text>
+<text x="750.0" y="121.5" font-size="11" text-anchor="middle" font-weight="bold">cola_respuesta</text>
+<rect x="870" y="60" width="180" height="100" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+<text x="960.0" y="84.0" font-size="11" text-anchor="middle">«component»</text>
+<text x="960.0" y="99.0" font-size="11" text-anchor="middle" font-weight="bold">componente_reserva</text>
+<text x="960.0" y="114.0" font-size="11" text-anchor="middle">▸ Escalado horizontal</text>
+<text x="960.0" y="129.0" font-size="11" text-anchor="middle">▸ Introducir concurrencia</text>
+<text x="960.0" y="144.0" font-size="11" text-anchor="middle">▸ Reducir la sobrecarga</text>
+<rect x="1080" y="60" width="180" height="100" fill="#FFF2CC" stroke="#D6B656" stroke-width="2"/>
+<text x="1170.0" y="99.0" font-size="11" text-anchor="middle">«datastore»</text>
+<text x="1170.0" y="114.0" font-size="11" text-anchor="middle" font-weight="bold">cache_asiento</text>
+<text x="1170.0" y="129.0" font-size="11" text-anchor="middle">▸ Caché hit / caché miss</text>
+<rect x="1290" y="60" width="180" height="100" fill="#FFF2CC" stroke="#D6B656" stroke-width="2"/>
+<text x="1380.0" y="106.5" font-size="11" text-anchor="middle">«datastore»</text>
+<text x="1380.0" y="121.5" font-size="11" text-anchor="middle" font-weight="bold">bd_bloqueo</text>
+<rect x="1500" y="60" width="180" height="100" fill="#FFF2CC" stroke="#D6B656" stroke-width="2"/>
+<text x="1590.0" y="106.5" font-size="11" text-anchor="middle">«datastore»</text>
+<text x="1590.0" y="121.5" font-size="11" text-anchor="middle" font-weight="bold">bd_reserva</text>
+<rect x="880" y="440" width="810" height="305" fill="none" stroke="#333" stroke-width="1.5"/><rect x="880" y="440" width="60" height="22" fill="#F5F5F5" stroke="#333" stroke-width="1.5"/><text x="888" y="455" font-size="12" font-weight="bold">alt</text>
+<text x="983" y="461" font-size="11" font-weight="bold">[caché hit]</text>
+<text x="983" y="561" font-size="11" font-weight="bold">[caché miss]</text>
+<rect x="670" y="890" width="1020" height="300" fill="none" stroke="#333" stroke-width="1.5"/><rect x="670" y="890" width="60" height="22" fill="#F5F5F5" stroke="#333" stroke-width="1.5"/><text x="678" y="905" font-size="12" font-weight="bold">alt</text>
+<text x="983" y="911" font-size="11" font-weight="bold">[bloqueo concedido]</text>
+<text x="983" y="1121" font-size="11" font-weight="bold">[asiento ya bloqueado]</text>
+<rect x="324" y="222" width="12" height="1094" fill="#FFFFFF" stroke="#333333" stroke-width="2"/>
+<rect x="534" y="280" width="12" height="74" fill="#FFFFFF" stroke="#333333" stroke-width="2"/>
+<rect x="744" y="1058" width="12" height="200" fill="#FFFFFF" stroke="#333333" stroke-width="2"/>
+<rect x="954" y="338" width="12" height="832" fill="#FFFFFF" stroke="#333333" stroke-width="2"/>
+<rect x="1164" y="396" width="12" height="326" fill="#FFFFFF" stroke="#333333" stroke-width="2"/>
+<rect x="1374" y="792" width="12" height="74" fill="#FFFFFF" stroke="#333333" stroke-width="2"/>
+<rect x="1584" y="590" width="12" height="74" fill="#FFFFFF" stroke="#333333" stroke-width="2"/>
+<rect x="1584" y="942" width="12" height="74" fill="#FFFFFF" stroke="#333333" stroke-width="2"/>
+<line x1="120" y1="160" x2="120" y2="1380" stroke="#888888" stroke-width="1.5" stroke-dasharray="8,6"/>
+<line x1="330" y1="160" x2="330" y2="1380" stroke="#888888" stroke-width="1.5" stroke-dasharray="8,6"/>
+<line x1="540" y1="160" x2="540" y2="1380" stroke="#888888" stroke-width="1.5" stroke-dasharray="8,6"/>
+<line x1="750" y1="160" x2="750" y2="1380" stroke="#888888" stroke-width="1.5" stroke-dasharray="8,6"/>
+<line x1="960" y1="160" x2="960" y2="1380" stroke="#888888" stroke-width="1.5" stroke-dasharray="8,6"/>
+<line x1="1170" y1="160" x2="1170" y2="1380" stroke="#888888" stroke-width="1.5" stroke-dasharray="8,6"/>
+<line x1="1380" y1="160" x2="1380" y2="1380" stroke="#888888" stroke-width="1.5" stroke-dasharray="8,6"/>
+<line x1="1590" y1="160" x2="1590" y2="1380" stroke="#888888" stroke-width="1.5" stroke-dasharray="8,6"/>
+<line x1="880" y1="540" x2="1690" y2="540" stroke="#333333" stroke-width="1.5" stroke-dasharray="8,6"/>
+<line x1="670" y1="1100" x2="1690" y2="1100" stroke="#333333" stroke-width="1.5" stroke-dasharray="8,6"/>
+<line x1="126" y1="230" x2="324" y2="230" stroke="#1F3864" stroke-width="1.5" marker-end="url(#qs)"/>
+<rect x="154.3" y="213" width="141.4" height="15" fill="white" fill-opacity="0.9"/><text x="225.0" y="225" font-size="11" text-anchor="middle" fill="#1F3864">«sync» reservar asiento</text>
+<line x1="336" y1="288" x2="534" y2="288" stroke="#B45F06" stroke-width="1.5" stroke-dasharray="8,6" marker-end="url(#qa)"/>
+<rect x="358.5" y="271" width="153.0" height="15" fill="white" fill-opacity="0.9"/><text x="435.0" y="283" font-size="11" text-anchor="middle" fill="#B45F06">«async» encolar solicitud</text>
+<line x1="546" y1="346" x2="954" y2="346" stroke="#B45F06" stroke-width="1.5" stroke-dasharray="8,6" marker-end="url(#qa)"/>
+<rect x="670.6" y="329" width="158.79999999999998" height="15" fill="white" fill-opacity="0.9"/><text x="750.0" y="341" font-size="11" text-anchor="middle" fill="#B45F06">«async» entregar solicitud</text>
+<line x1="966" y1="404" x2="1164" y2="404" stroke="#1F3864" stroke-width="1.5" marker-end="url(#qs)"/>
+<rect x="991.4" y="387" width="147.2" height="15" fill="white" fill-opacity="0.9"/><text x="1065.0" y="399" font-size="11" text-anchor="middle" fill="#1F3864">«sync» consultar asiento</text>
+<line x1="1164" y1="500" x2="966" y2="500" stroke="#7F8FA6" stroke-width="1.5" stroke-dasharray="3,4" marker-end="url(#qr)"/>
+<rect x="1008.8" y="483" width="112.39999999999999" height="15" fill="white" fill-opacity="0.9"/><text x="1065.0" y="495" font-size="11" text-anchor="middle" fill="#7F8FA6" font-style="italic">estado del asiento</text>
+<line x1="1176" y1="598" x2="1584" y2="598" stroke="#1F3864" stroke-width="1.5" marker-end="url(#qs)"/>
+<rect x="1320.9" y="581" width="118.2" height="15" fill="white" fill-opacity="0.9"/><text x="1380.0" y="593" font-size="11" text-anchor="middle" fill="#1F3864">«sync» leer asiento</text>
+<line x1="1584" y1="656" x2="1176" y2="656" stroke="#7F8FA6" stroke-width="1.5" stroke-dasharray="3,4" marker-end="url(#qr)"/>
+<rect x="1323.8" y="639" width="112.39999999999999" height="15" fill="white" fill-opacity="0.9"/><text x="1380.0" y="651" font-size="11" text-anchor="middle" fill="#7F8FA6" font-style="italic">estado del asiento</text>
+<line x1="1164" y1="714" x2="966" y2="714" stroke="#7F8FA6" stroke-width="1.5" stroke-dasharray="3,4" marker-end="url(#qr)"/>
+<rect x="1008.8" y="697" width="112.39999999999999" height="15" fill="white" fill-opacity="0.9"/><text x="1065.0" y="709" font-size="11" text-anchor="middle" fill="#7F8FA6" font-style="italic">estado del asiento</text>
+<line x1="966" y1="800" x2="1374" y2="800" stroke="#1F3864" stroke-width="1.5" marker-end="url(#qs)"/>
+<rect x="1076.1" y="783" width="187.79999999999998" height="15" fill="white" fill-opacity="0.9"/><text x="1170.0" y="795" font-size="11" text-anchor="middle" fill="#1F3864">«sync» bloquear asiento (8 min)</text>
+<line x1="1374" y1="858" x2="966" y2="858" stroke="#7F8FA6" stroke-width="1.5" stroke-dasharray="3,4" marker-end="url(#qr)"/>
+<rect x="1105.1" y="841" width="129.8" height="15" fill="white" fill-opacity="0.9"/><text x="1170.0" y="853" font-size="11" text-anchor="middle" fill="#7F8FA6" font-style="italic">resultado del bloqueo</text>
+<line x1="966" y1="950" x2="1584" y2="950" stroke="#1F3864" stroke-width="1.5" marker-end="url(#qs)"/>
+<rect x="1207.2" y="933" width="135.6" height="15" fill="white" fill-opacity="0.9"/><text x="1275.0" y="945" font-size="11" text-anchor="middle" fill="#1F3864">«sync» guardar reserva</text>
+<line x1="1584" y1="1008" x2="966" y2="1008" stroke="#7F8FA6" stroke-width="1.5" stroke-dasharray="3,4" marker-end="url(#qr)"/>
+<rect x="1224.6" y="991" width="100.8" height="15" fill="white" fill-opacity="0.9"/><text x="1275.0" y="1003" font-size="11" text-anchor="middle" fill="#7F8FA6" font-style="italic">reserva guardada</text>
+<line x1="954" y1="1066" x2="756" y2="1066" stroke="#B45F06" stroke-width="1.5" stroke-dasharray="8,6" marker-end="url(#qa)"/>
+<rect x="775.6" y="1049" width="158.79999999999998" height="15" fill="white" fill-opacity="0.9"/><text x="855.0" y="1061" font-size="11" text-anchor="middle" fill="#B45F06">«async» reserva confirmada</text>
+<line x1="954" y1="1160" x2="756" y2="1160" stroke="#B45F06" stroke-width="1.5" stroke-dasharray="8,6" marker-end="url(#qa)"/>
+<rect x="778.5" y="1143" width="153.0" height="15" fill="white" fill-opacity="0.9"/><text x="855.0" y="1155" font-size="11" text-anchor="middle" fill="#B45F06">«async» reserva rechazada</text>
+<line x1="744" y1="1250" x2="336" y2="1250" stroke="#B45F06" stroke-width="1.5" stroke-dasharray="8,6" marker-end="url(#qa)"/>
+<rect x="460.6" y="1233" width="158.79999999999998" height="15" fill="white" fill-opacity="0.9"/><text x="540.0" y="1245" font-size="11" text-anchor="middle" fill="#B45F06">«async» entregar respuesta</text>
+<line x1="324" y1="1308" x2="126" y2="1308" stroke="#7F8FA6" stroke-width="1.5" stroke-dasharray="3,4" marker-end="url(#qr)"/>
+<rect x="157.2" y="1291" width="135.6" height="15" fill="white" fill-opacity="0.9"/><text x="225.0" y="1303" font-size="11" text-anchor="middle" fill="#7F8FA6" font-style="italic">confirmación o rechazo</text>
+</svg>

@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="1170" viewBox="-10 -30 920 1170" font-family="Helvetica, Arial, sans-serif">
+<rect x="-10" y="-30" width="920" height="1170" fill="white"/>
+<defs><marker id="ms" markerWidth="12" markerHeight="10" refX="11" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L12,5 L0,10 z" fill="#1F3864"/></marker><marker id="ma" markerWidth="12" markerHeight="10" refX="11" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L11,5 L0,10" fill="none" stroke="#B45F06" stroke-width="1.6"/></marker><marker id="md" markerWidth="12" markerHeight="10" refX="11" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L11,5 L0,10" fill="none" stroke="#555555" stroke-width="1.6"/></marker><marker id="mdx" markerWidth="12" markerHeight="10" refX="11" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L11,5 L0,10" fill="none" stroke="#999999" stroke-width="1.6"/></marker><marker id="mr" markerWidth="14" markerHeight="12" refX="13" refY="6" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L14,6 L0,12 z" fill="white" stroke="#6C8EBF" stroke-width="1.6"/></marker></defs>
+<text x="20" y="16" font-size="18" font-weight="bold">Vista de Desarrollo — Diagrama de paquetes UML 2.0</text>
+<rect x="30" y="50" width="610" height="190" rx="10" fill="#EAF1FB" stroke="#6C8EBF" stroke-width="2"/>
+<text x="40" y="69" font-size="13" font-weight="bold">«package» paquete_servicio_reserva  (se despliega en nodo_reserva)</text>
+<rect x="60" y="106" width="230" height="36" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+<rect x="60" y="92" width="70" height="14" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+<text x="175.0" y="120.5" font-size="11" text-anchor="middle" fill="#000000">«package»</text>
+<text x="175.0" y="135.5" font-size="11" text-anchor="middle" fill="#000000" font-weight="bold">paquete_reserva_adaptador</text>
+<rect x="360" y="106" width="230" height="36" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+<rect x="360" y="92" width="70" height="14" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+<text x="475.0" y="120.5" font-size="11" text-anchor="middle" fill="#000000">«package»</text>
+<text x="475.0" y="135.5" font-size="11" text-anchor="middle" fill="#000000" font-weight="bold">paquete_reserva_aplicacion</text>
+<rect x="360" y="184" width="230" height="36" fill="#D5E8D4" stroke="#82B366" stroke-width="2"/>
+<rect x="360" y="170" width="70" height="14" fill="#D5E8D4" stroke="#82B366" stroke-width="2"/>
+<text x="475.0" y="198.5" font-size="11" text-anchor="middle" fill="#000000">«package»</text>
+<text x="475.0" y="213.5" font-size="11" text-anchor="middle" fill="#000000" font-weight="bold">paquete_reserva_dominio</text>
+<rect x="30" y="260" width="610" height="310" rx="10" fill="#EAF1FB" stroke="#6C8EBF" stroke-width="2"/>
+<text x="40" y="279" font-size="13" font-weight="bold">«package» paquete_servicio_pago  (se despliega en nodo_pasarela)</text>
+<rect x="60" y="316" width="230" height="36" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+<rect x="60" y="302" width="70" height="14" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+<text x="175.0" y="330.5" font-size="11" text-anchor="middle" fill="#000000">«package»</text>
+<text x="175.0" y="345.5" font-size="11" text-anchor="middle" fill="#000000" font-weight="bold">paquete_pasarela_adaptador_a</text>
+<rect x="60" y="376" width="230" height="36" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+<rect x="60" y="362" width="70" height="14" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+<text x="175.0" y="390.5" font-size="11" text-anchor="middle" fill="#000000">«package»</text>
+<text x="175.0" y="405.5" font-size="11" text-anchor="middle" fill="#000000" font-weight="bold">paquete_pasarela_adaptador_b</text>
+<rect x="60" y="436" width="230" height="36" fill="#FFFFFF" stroke="#999999" stroke-width="2" stroke-dasharray="6,4"/>
+<rect x="60" y="422" width="70" height="14" fill="#FFFFFF" stroke="#999999" stroke-width="2" stroke-dasharray="6,4"/>
+<text x="175.0" y="450.5" font-size="11" text-anchor="middle" fill="#555555">«package»</text>
+<text x="175.0" y="465.5" font-size="11" text-anchor="middle" fill="#555555" font-weight="bold">paquete_pasarela_adaptador_nueva</text>
+<rect x="360" y="316" width="230" height="156" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+<rect x="360" y="302" width="70" height="14" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+<text x="475.0" y="390.5" font-size="11" text-anchor="middle" fill="#000000">«package»</text>
+<text x="475.0" y="405.5" font-size="11" text-anchor="middle" fill="#000000" font-weight="bold">paquete_pago_aplicacion</text>
+<rect x="360" y="514" width="230" height="36" fill="#D5E8D4" stroke="#82B366" stroke-width="2"/>
+<rect x="360" y="500" width="70" height="14" fill="#D5E8D4" stroke="#82B366" stroke-width="2"/>
+<text x="475.0" y="528.5" font-size="11" text-anchor="middle" fill="#000000">«package»</text>
+<text x="475.0" y="543.5" font-size="11" text-anchor="middle" fill="#000000" font-weight="bold">paquete_pago_dominio</text>
+<rect x="30" y="590" width="610" height="250" rx="10" fill="#EAF1FB" stroke="#6C8EBF" stroke-width="2"/>
+<text x="40" y="609" font-size="13" font-weight="bold">«package» paquete_servicio_promotor  (se despliega en nodo_promotor)</text>
+<rect x="60" y="646" width="230" height="36" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+<rect x="60" y="632" width="70" height="14" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+<text x="175.0" y="660.5" font-size="11" text-anchor="middle" fill="#000000">«package»</text>
+<text x="175.0" y="675.5" font-size="11" text-anchor="middle" fill="#000000" font-weight="bold">paquete_promotor_adaptador</text>
+<rect x="60" y="706" width="230" height="36" fill="#FFFFFF" stroke="#999999" stroke-width="2" stroke-dasharray="6,4"/>
+<rect x="60" y="692" width="70" height="14" fill="#FFFFFF" stroke="#999999" stroke-width="2" stroke-dasharray="6,4"/>
+<text x="175.0" y="720.5" font-size="11" text-anchor="middle" fill="#555555">«package»</text>
+<text x="175.0" y="735.5" font-size="11" text-anchor="middle" fill="#555555" font-weight="bold">paquete_promotor_adaptador_nuevo</text>
+<rect x="360" y="646" width="230" height="96" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+<rect x="360" y="632" width="70" height="14" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+<text x="475.0" y="690.5" font-size="11" text-anchor="middle" fill="#000000">«package»</text>
+<text x="475.0" y="705.5" font-size="11" text-anchor="middle" fill="#000000" font-weight="bold">paquete_ingesta_aplicacion</text>
+<rect x="360" y="784" width="230" height="36" fill="#D5E8D4" stroke="#82B366" stroke-width="2"/>
+<rect x="360" y="770" width="70" height="14" fill="#D5E8D4" stroke="#82B366" stroke-width="2"/>
+<text x="475.0" y="798.5" font-size="11" text-anchor="middle" fill="#000000">«package»</text>
+<text x="475.0" y="813.5" font-size="11" text-anchor="middle" fill="#000000" font-weight="bold">paquete_modelo_comun</text>
+<rect x="30" y="860" width="610" height="250" rx="10" fill="#EAF1FB" stroke="#6C8EBF" stroke-width="2"/>
+<text x="40" y="879" font-size="13" font-weight="bold">«package» paquete_servicio_seguridad  (se despliega en nodo_entrada)</text>
+<rect x="60" y="916" width="230" height="36" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+<rect x="60" y="902" width="70" height="14" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+<text x="175.0" y="930.5" font-size="11" text-anchor="middle" fill="#000000">«package»</text>
+<text x="175.0" y="945.5" font-size="11" text-anchor="middle" fill="#000000" font-weight="bold">paquete_borde_adaptador</text>
+<rect x="60" y="976" width="230" height="36" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+<rect x="60" y="962" width="70" height="14" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+<text x="175.0" y="990.5" font-size="11" text-anchor="middle" fill="#000000">«package»</text>
+<text x="175.0" y="1005.5" font-size="11" text-anchor="middle" fill="#000000" font-weight="bold">paquete_seguridad_adaptador</text>
+<rect x="360" y="916" width="230" height="96" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+<rect x="360" y="902" width="70" height="14" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+<text x="475.0" y="960.5" font-size="11" text-anchor="middle" fill="#000000">«package»</text>
+<text x="475.0" y="975.5" font-size="11" text-anchor="middle" fill="#000000" font-weight="bold">paquete_seguridad_aplicacion</text>
+<rect x="360" y="1054" width="230" height="36" fill="#D5E8D4" stroke="#82B366" stroke-width="2"/>
+<rect x="360" y="1040" width="70" height="14" fill="#D5E8D4" stroke="#82B366" stroke-width="2"/>
+<text x="475.0" y="1068.5" font-size="11" text-anchor="middle" fill="#000000">«package»</text>
+<text x="475.0" y="1083.5" font-size="11" text-anchor="middle" fill="#000000" font-weight="bold">paquete_seguridad_dominio</text>
+<rect x="720" y="64" width="160" height="1046" fill="#FFF2CC" stroke="#D6B656" stroke-width="2"/>
+<rect x="720" y="50" width="70" height="14" fill="#FFF2CC" stroke="#D6B656" stroke-width="2"/>
+<text x="800.0" y="583.5" font-size="11" text-anchor="middle" fill="#000000">«package»</text>
+<text x="800.0" y="598.5" font-size="11" text-anchor="middle" fill="#000000" font-weight="bold">paquete_parametrizacion</text>
+<polyline points="290,117 360,117" fill="none" stroke="#555555" stroke-width="1.6"  marker-end="url(#md)"/>
+<polyline points="475,142 475,170" fill="none" stroke="#555555" stroke-width="1.6"  marker-end="url(#md)"/>
+<polyline points="290,327 360,327" fill="none" stroke="#555555" stroke-width="1.6"  marker-end="url(#md)"/>
+<polyline points="290,387 360,387" fill="none" stroke="#555555" stroke-width="1.6"  marker-end="url(#md)"/>
+<polyline points="290,447 360,447" fill="none" stroke="#999999" stroke-width="1.6" stroke-dasharray="7,5"  marker-end="url(#mdx)"/>
+<polyline points="475,472 475,500" fill="none" stroke="#555555" stroke-width="1.6"  marker-end="url(#md)"/>
+<polyline points="290,657 360,657" fill="none" stroke="#555555" stroke-width="1.6"  marker-end="url(#md)"/>
+<polyline points="290,717 360,717" fill="none" stroke="#999999" stroke-width="1.6" stroke-dasharray="7,5"  marker-end="url(#mdx)"/>
+<polyline points="475,742 475,770" fill="none" stroke="#555555" stroke-width="1.6"  marker-end="url(#md)"/>
+<polyline points="290,927 360,927" fill="none" stroke="#555555" stroke-width="1.6"  marker-end="url(#md)"/>
+<polyline points="290,987 360,987" fill="none" stroke="#555555" stroke-width="1.6"  marker-end="url(#md)"/>
+<polyline points="475,1012 475,1040" fill="none" stroke="#555555" stroke-width="1.6"  marker-end="url(#md)"/>
+<polyline points="590,117 720,117" fill="none" stroke="#555555" stroke-width="1.6"  marker-end="url(#md)"/>
+<polyline points="590,387 720,387" fill="none" stroke="#555555" stroke-width="1.6"  marker-end="url(#md)"/>
+<polyline points="590,687 720,687" fill="none" stroke="#555555" stroke-width="1.6"  marker-end="url(#md)"/>
+<polyline points="590,957 720,957" fill="none" stroke="#555555" stroke-width="1.6"  marker-end="url(#md)"/>
+</svg>
