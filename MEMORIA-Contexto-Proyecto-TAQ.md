@@ -8,10 +8,10 @@ Proyecto: **Plataforma de Venta y Control de Acceso para Eventos en Vivo**.
 Diseñar la arquitectura de software del sistema e **implementar las decisiones de arquitectura** definidas para **validar el cumplimiento de los requerimientos de calidad** (experimentos / validación de ASRs).
 
 ## Grupo 2
-- Carlos Santiago Benitez Malaver — cs.benitez@uniandes.edu.co
-- Cristhian Yovany Almonacid Rojas — c.almonacidr@uniandes.edu.co
-- Cristian Alberto Triana Villa — ca.trianav1@uniandes.edu.co
-- Juan Camilo Palacios Romero — jc.palaciosr1@uniandes.edu.co
+- Carlos Santiago Benitez Malaver
+- Cristhian Yovany Almonacid Rojas
+- Cristian Alberto Triana Villa
+- Juan Camilo Palacios Romero
 
 ## Contexto del negocio (TAQ)
 - Vende boletas de conciertos, festivales y eventos deportivos en **4 países**.
