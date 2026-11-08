@@ -16,6 +16,10 @@
 <rect x="360" y="170" width="70" height="14" fill="#D5E8D4" stroke="#82B366" stroke-width="2"/>
 <text x="475.0" y="198.5" font-size="11" text-anchor="middle" fill="#000000">«package»</text>
 <text x="475.0" y="213.5" font-size="11" text-anchor="middle" fill="#000000" font-weight="bold">paquete_reserva_dominio</text>
+<rect x="60" y="184" width="230" height="36" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+<rect x="60" y="170" width="70" height="14" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+<text x="175.0" y="198.5" font-size="11" text-anchor="middle" fill="#000000">«package»</text>
+<text x="175.0" y="213.5" font-size="11" text-anchor="middle" fill="#000000" font-weight="bold">paquete_confirmacion_aplicacion</text>
 <rect x="30" y="260" width="610" height="310" rx="10" fill="#EAF1FB" stroke="#6C8EBF" stroke-width="2"/>
 <text x="40" y="279" font-size="13" font-weight="bold">«package» paquete_servicio_pago  (se despliega en nodo_pasarela)</text>
 <rect x="60" y="316" width="230" height="36" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
@@ -80,6 +84,7 @@
 <text x="800.0" y="598.5" font-size="11" text-anchor="middle" fill="#000000" font-weight="bold">paquete_parametrizacion</text>
 <polyline points="290,117 360,117" fill="none" stroke="#555555" stroke-width="1.6"  marker-end="url(#md)"/>
 <polyline points="475,142 475,170" fill="none" stroke="#555555" stroke-width="1.6"  marker-end="url(#md)"/>
+<polyline points="290,195 360,195" fill="none" stroke="#555555" stroke-width="1.6"  marker-end="url(#md)"/>
 <polyline points="290,327 360,327" fill="none" stroke="#555555" stroke-width="1.6"  marker-end="url(#md)"/>
 <polyline points="290,387 360,387" fill="none" stroke="#555555" stroke-width="1.6"  marker-end="url(#md)"/>
 <polyline points="290,447 360,447" fill="none" stroke="#999999" stroke-width="1.6" stroke-dasharray="7,5"  marker-end="url(#mdx)"/>

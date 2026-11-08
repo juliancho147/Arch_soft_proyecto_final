@@ -74,24 +74,25 @@
 <text x="53" y="646" font-size="10">resultado</text>
 <rect x="340" y="440" width="240" height="250" rx="10" fill="#FFF8E1" stroke="#D6B656" stroke-width="2"/>
 <text x="350" y="459" font-size="13" font-weight="bold">«package» memoria</text>
-<rect x="355" y="487" width="210" height="80" fill="#FFFFFF" stroke="#D6B656" stroke-width="2"/>
+<rect x="355" y="487" width="210" height="94" fill="#FFFFFF" stroke="#D6B656" stroke-width="2"/>
 <text x="460.0" y="503" font-size="11" font-weight="bold" text-anchor="middle">bloqueo</text>
 <line x1="355" y1="510" x2="565" y2="510" stroke="#D6B656" stroke-width="1.5"/>
 <text x="363" y="525" font-size="10">id_asiento</text>
 <text x="363" y="539" font-size="10">id_comprador</text>
-<text x="363" y="553" font-size="10">expira_en</text>
-<rect x="355" y="587" width="210" height="66" fill="#FFFFFF" stroke="#D6B656" stroke-width="2"/>
-<text x="460.0" y="603" font-size="11" font-weight="bold" text-anchor="middle">asiento_en_cache</text>
-<line x1="355" y1="610" x2="565" y2="610" stroke="#D6B656" stroke-width="1.5"/>
-<text x="363" y="625" font-size="10">id_asiento</text>
-<text x="363" y="639" font-size="10">estado</text>
+<text x="363" y="553" font-size="10">estado (bloqueado | vendido)</text>
+<text x="363" y="567" font-size="10">expira_en</text>
+<rect x="355" y="597" width="210" height="66" fill="#FFFFFF" stroke="#D6B656" stroke-width="2"/>
+<text x="460.0" y="613" font-size="11" font-weight="bold" text-anchor="middle">asiento_en_cache</text>
+<line x1="355" y1="620" x2="565" y2="620" stroke="#D6B656" stroke-width="1.5"/>
+<text x="363" y="635" font-size="10">id_asiento</text>
+<text x="363" y="649" font-size="10">estado</text>
 <rect x="950" y="640" width="550" height="190" rx="10" fill="#EAF1FB" stroke="#6C8EBF" stroke-width="2"/>
 <text x="960" y="659" font-size="13" font-weight="bold">«package» esquema_reserva</text>
 <rect x="965" y="687" width="230" height="108" fill="#FFFFFF" stroke="#6C8EBF" stroke-width="2"/>
 <text x="1080.0" y="703" font-size="11" font-weight="bold" text-anchor="middle">reserva</text>
 <line x1="965" y1="710" x2="1195" y2="710" stroke="#6C8EBF" stroke-width="1.5"/>
 <text x="973" y="725" font-size="10">id_reserva</text>
-<text x="973" y="739" font-size="10">id_asiento</text>
+<text x="973" y="739" font-size="10">id_asiento (único)</text>
 <text x="973" y="753" font-size="10">id_comprador</text>
 <text x="973" y="767" font-size="10">estado</text>
 <text x="973" y="781" font-size="10">precio_total</text>
@@ -167,9 +168,9 @@
 <polyline points="565,527 965,527" fill="none" stroke="#444444" stroke-width="1.6" />
 <rect x="738.0" y="519.0" width="54" height="16" fill="white" fill-opacity="0.92"/>
 <text x="765.0" y="531.0" font-size="10.5" text-anchor="middle" fill="#444444">0..1 : 1</text>
-<polyline points="565,620 620,620 620,560 965,560" fill="none" stroke="#444444" stroke-width="1.6" />
-<rect x="717.0" y="552.0" width="36" height="16" fill="white" fill-opacity="0.92"/>
-<text x="735.0" y="564.0" font-size="10.5" text-anchor="middle" fill="#444444">* : 1</text>
+<polyline points="565,630 620,630 620,560 965,560" fill="none" stroke="#444444" stroke-width="1.6" />
+<rect x="712.0" y="552.0" width="36" height="16" fill="white" fill-opacity="0.92"/>
+<text x="730.0" y="564.0" font-size="10.5" text-anchor="middle" fill="#444444">* : 1</text>
 <polyline points="255,527 355,527" fill="none" stroke="#999999" stroke-width="1.6" stroke-dasharray="7,5"  marker-end="url(#mdx)"/>
 <rect x="275.0" y="519.0" width="60" height="16" fill="white" fill-opacity="0.92"/>
 <text x="305.0" y="531.0" font-size="10.5" text-anchor="middle" fill="#999999">«origina»</text>

@@ -9,42 +9,50 @@ Contexto del enunciado: ver `MEMORIA-Contexto-Proyecto-TAQ.md`.
 - **Latencia:** umbral de **150 ms en p95** (más estricto que el 1 s del enunciado; decisión del equipo). La latencia se mide solo en régimen normal; el pico de carga se evalúa en escalabilidad.
 - **Seguridad:** solo ASRs de detectar y recuperarse de ataques. Resistir ataques (bots, límite de 4 boletas por persona, boletas falsificadas) no es un ASR; se maneja de forma implícita en el diseño de la arquitectura.
 - **Disponibilidad:** se entiende a nivel de software e incluye (a) que el valor del dato sea correcto (sin doble venta, precio único) y (b) detectar y recuperarse de fallas de software. No se trata de disponibilidad de hardware.
-- **Disponibilidad (decisión final):** solo ASRs de detectar y recuperarse de la falla de un componente del pago (D-1, D-2). La doble venta de un asiento, el precio total único y la detección y recuperación de fallas de instancias se descartaron como ASRs; se manejan de forma implícita en el diseño de la arquitectura.
+- **Disponibilidad (decisión final):** ASRs de detectar y recuperarse de la falla de un componente del pago (D-1, D-2) y uno de prevención de la doble reserva de un asiento (D-3). El precio total único y la detección y recuperación de fallas de instancias se descartaron como ASRs; se manejan de forma implícita en el diseño de la arquitectura. Para la doble reserva se consideró un par de ASRs de detectar y recuperarse; se descartó y se dejó solo la prevención (D-3).
 - **Modificabilidad:** el reemplazo de una pasarela en producción sin interrumpir ventas se descartó como ASR (implícito en el diseño). M-2 trata la modificación de la lógica de impuestos por país. La variación de impuestos por país es una extensión del equipo; el enunciado solo menciona precios con y sin impuestos y la apertura de 2 países más.
 - Los ASRs marcados con ⚠️ usan cifras que el enunciado no da; son supuestos por confirmar.
 
-## Lista de ASRs (13)
+## Lista de ASRs (14)
 
 | Atributo | IDs | Estado |
 |---|---|---|
 | Latencia | L-1, L-2 | L-1 y L-2 aprobados |
 | Escalabilidad | E-1, E-2 | E-1 y E-2 aprobados (la escalabilidad del control de acceso se descartó) |
 | Seguridad | S-1 (detectar), S-2 (recuperarse) | S-1 y S-2 aprobados |
-| Disponibilidad | D-1 (detectar falla en pagos), D-2 (recuperarse) | D-1 y D-2 aprobados |
+| Disponibilidad | D-1 (detectar falla en pagos), D-2 (recuperarse), D-3 (prevenir la doble reserva de un asiento) | D-1, D-2 y D-3 aprobados |
 | Modificabilidad | M-1, M-2, M-3 | M-1, M-2 y M-3 aprobados |
 | Interoperabilidad | I-1, I-2 | I-1 y I-2 aprobados |
 
-## ASRs priorizados para experimentar (9 de 13)
+## Priorización de ASRs: 4 priorizados, 6 subpriorizados y 4 sin priorizar
 
-No se pueden atacar los 13 ASRs. El equipo priorizó estos 9, que son los que se llevan a experimentación:
+No se pueden atacar los 14 ASRs. La priorización tiene tres niveles.
 
-| # | ID | ASR |
+**Priorizados (4):** son los que se llevan a experimentación, ordenados por importancia (1 = el más importante).
+
+| Orden | ID | ASR |
 |---|---|---|
-| 1 | L-1 | Latencia de confirmación de reserva |
+| 1 | D-3 | Prevenir la doble reserva de un asiento |
+| 2 | L-1 | Latencia de confirmación de reserva |
 | 3 | E-1 | Escalabilidad de reservas en preventa |
-| 5 | S-1 | Detectar un ataque |
-| 6 | S-2 | Recuperarse de un ataque |
-| 7 | D-1 | Detectar la falla de un componente del pago |
-| 8 | D-2 | Recuperarse de la falla de un componente del pago |
-| 9 | M-1 | Incorporar una pasarela de pago nueva |
-| 11 | M-3 | Cambiar reglas de forma gradual y reversible |
-| 12 | I-1 | Interpretar los formatos de los promotores |
+| 4 | S-1 | Detectar un ataque |
 
-Sin priorizar (siguen aprobados y pueden retomarse): L-2 (latencia en puerta), E-2 (escalabilidad de pagos), M-2 (impuestos por país) e I-2 (lectores de distintos fabricantes). Con esta selección, el control de acceso en puerta queda sin ASR experimentado.
+**Subpriorizados (6):** estaban priorizados en la primera selección (L-1, E-1, S-1, S-2, D-1, D-2, M-1, M-3 e I-1) y no quedaron entre los 4. Siguen aprobados y se experimentan solo si sobra tiempo.
 
-**L-2 es opcional, la última opción:** no está priorizado ni marcado en el Excel. Solo se implementa si sobra tiempo; comparte la plantilla de prueba de L-1.
+| ID | ASR |
+|---|---|
+| S-2 | Recuperarse de un ataque |
+| D-1 | Detectar la falla de un componente del pago |
+| D-2 | Recuperarse de la falla de un componente del pago |
+| M-1 | Incorporar una pasarela de pago nueva |
+| M-3 | Cambiar reglas de forma gradual y reversible |
+| I-1 | Interpretar los formatos de los promotores |
 
-El Excel `ASRs-TAQ.xlsx` marca los priorizados con la columna "Priorizado" y los subraya.
+**Sin priorizar (4):** nunca estuvieron priorizados; siguen aprobados y pueden retomarse: L-2 (latencia en puerta), E-2 (escalabilidad de pagos), M-2 (impuestos por país) e I-2 (lectores de distintos fabricantes). Con esta selección, el control de acceso en puerta queda sin ASR experimentado.
+
+**L-2 es opcional, la última opción:** solo se implementa si sobra tiempo; comparte la plantilla de prueba de L-1.
+
+El Excel `ASRs-TAQ.xlsx` marca en la columna "Priorizado" los 4 con "Sí" (ID y nombre subrayados) y los 6 con "Subpriorizado", y ordena los 4 en la columna "Orden de importancia".
 
 ---
 
@@ -98,9 +106,9 @@ El Excel `ASRs-TAQ.xlsx` marca los priorizados con la columna "Priorizado" y los
 | **Respuesta** | La plataforma aumenta su capacidad, atiende todas las solicitudes y confirma las reservas |
 | **Medida de respuesta** | p95 < 250 ms durante 15 min |
 
-**Hipótesis:** Si los servicios de reserva son sin estado y escalan horizontalmente detrás de un balanceador, el bloqueo atómico en memoria se particiona por evento y la persistencia se hace de forma asíncrona mediante cola, entonces la plataforma sostendrá 8.000 transacciones/min durante 15 min con latencia p95 < 250 ms.
+**Hipótesis:** Si los servicios de reserva son sin estado y escalan horizontalmente detrás de un balanceador, el bloqueo atómico en memoria se ejecuta en un único hilo y la persistencia se hace de forma asíncrona mediante cola, entonces la plataforma sostendrá 8.000 transacciones/min durante 15 min con latencia p95 < 250 ms.
 
-**No valida:** cargas por encima de 8.000/min, varios eventos de alta demanda al mismo tiempo, el comportamiento bajo fallas (D-3 a D-6) ni la latencia que percibe el comprador con su red.
+**No valida:** cargas por encima de 8.000/min, varios eventos de alta demanda al mismo tiempo, el comportamiento bajo fallas (D-1 y D-2), la latencia que percibe el comprador con su red ni el escalado del bloqueo atómico, que se ejecuta en un único hilo y no escala: su techo es el de ese hilo.
 
 ---
 
@@ -120,7 +128,7 @@ El Excel `ASRs-TAQ.xlsx` marca los priorizados con la columna "Priorizado" y los
 
 **Frontera de medición:** se mide con una pasarela simulada de tiempo fijo; el tiempo de respuesta de la pasarela externa no cuenta.
 
-**No valida:** el tiempo de respuesta de la pasarela externa, las fallas de pasarela (D-4, D-6) ni su reemplazo (M-2), ni cargas por encima de 8.000 pagos/min.
+**No valida:** el tiempo de respuesta de la pasarela externa, las fallas de pasarela (D-1, D-2) ni su reemplazo (M-2), ni cargas por encima de 8.000 pagos/min.
 
 ---
 
@@ -195,6 +203,25 @@ El Excel `ASRs-TAQ.xlsx` marca los priorizados con la columna "Priorizado" y los
 **Hipótesis:** Si el orquestador mantiene dos pasarelas activas detrás de una interfaz uniforme, cada pago lleva una clave de idempotencia y el bloqueo del asiento es independiente del cobro, entonces el pago se redirigirá a la otra pasarela en ≤ 300 ms desde que se marca la falla, sin perder el asiento ni duplicar el cobro.
 
 **No valida:** la detección de la falla (D-1), el reemplazo planificado de una pasarela (M-2), la caída simultánea de las dos pasarelas ni el tiempo que tarda la segunda pasarela en procesar el pago.
+
+---
+
+## D-3 — Prevenir la doble reserva de un asiento  ✅ aprobado
+
+| Parte | Contenido |
+|---|---|
+| **Fuente del estímulo** | Compradores desde la app web o móvil |
+| **Estímulo** | Dos o más solicitudes llegan al mismo tiempo (en el mismo milisegundo) para un mismo grupo de asientos, o para al menos un asiento de ese grupo |
+| **Patrón del estímulo** | Solicitudes simultáneas sobre los mismos asientos, durante la operación normal |
+| **Artefacto** | Servicio de reservas e inventario de asientos |
+| **Entorno** | Operación normal (400 transacciones/min) |
+| **Respuesta** | Asigna cada asiento a una sola solicitud y rechaza a las demás indicando que el asiento no está disponible |
+| **Medida de respuesta** | 0 asientos con más de una reserva |
+
+**Hipótesis:** Si el bloqueo de cada asiento es una sola operación atómica de "bloquear si libre" en `bd_bloqueo`, que la ejecuta en un único hilo, y `componente_gestor_bloqueo` es el único que la solicita, entonces ninguna solicitud simultánea logrará reservar un asiento ya asignado, y habrá 0 asientos con más de una reserva. El bloqueo de un grupo de asientos es de todo o nada: si un solo asiento del grupo ya está tomado, la solicitud entera falla y no queda bloqueado ningún asiento del grupo.
+**No valida:** la latencia de la reserva (L-1), el comportamiento durante el pico de preventa (E-1), el pago sobre un bloqueo vencido ni la detección y recuperación de una reserva duplicada.
+
+**Nota:** se probó primero un par de ASRs de detectar y recuperarse de la múltiple reserva; el equipo los descartó y dejó uno solo de prevención. Se prueba con la prueba de contención de EXP-1: muchas solicitudes simultáneas sobre los mismos asientos y se cuentan los asientos con más de una reserva.
 
 ---
 
@@ -294,4 +321,4 @@ El Excel `ASRs-TAQ.xlsx` marca los priorizados con la columna "Priorizado" y los
 
 ## Estado final de la lista
 
-Los 13 ASRs están aprobados. Siguiente etapa: definir la arquitectura y luego el diseño de los experimentos (código y encuesta a un arquitecto externo).
+Los 14 ASRs están aprobados. Siguiente etapa: definir la arquitectura y luego el diseño de los experimentos (código y encuesta a un arquitecto externo).

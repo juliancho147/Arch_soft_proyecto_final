@@ -58,7 +58,7 @@ Resumen completo del enunciado: [`MEMORIA-Contexto-Proyecto-TAQ.md`](MEMORIA-Con
 | 1. Requerimientos | [`ASRs-TAQ.md`](ASRs-TAQ.md) | 13 ASRs en 6 atributos: latencia, escalabilidad, seguridad, disponibilidad, modificabilidad, interoperabilidad | Aprobado |
 | 2. Tácticas | [`Tacticas-TAQ.md`](Tacticas-TAQ.md) | 18 tácticas expuestas para los 9 ASRs priorizados | Aprobado |
 | 3. Arquitectura | [`Arquitectura-TAQ.drawio`](Arquitectura-TAQ.drawio) y [`Diagramas SVG/`](Diagramas%20SVG) | Vistas funcional, concurrencia, despliegue, desarrollo e información | Dibujada |
-| 4. Experimentación | [`Plan-Experimentos-TAQ.md`](Plan-Experimentos-TAQ.md) | EXP-1 a EXP-3 (código) y EXP-4 (encuesta a arquitecto externo) | Plan en curso; contenido de EXP-4 por definir |
+| 4. Experimentación | [`Plan-Experimentos-TAQ.md`](Plan-Experimentos-TAQ.md) | EXP-1 a EXP-3 (código) | EXP-1, EXP-2 y EXP-3 aprobados |
 
 ### ASRs
 
@@ -92,12 +92,11 @@ Decisiones principales: la reserva se escribe directo y de forma síncrona en la
 
 | Experimento | ASRs | Tipo | Qué prueba |
 |---|---|---|---|
-| EXP-1 | L-1, E-1 | Código | Carga constante (400/min) y rampa hasta 8.000/min |
-| EXP-2 | S-1, S-2 | Código | Simular un ataque y medir detección y recuperación |
-| EXP-3 | D-1, D-2 | Código | Inyectar fallas (cuelgue y error inmediato) en la pasarela simulada |
-| EXP-4 | I-1, M-1, M-3 | Encuesta | Un arquitecto externo valida interoperabilidad y modificabilidad |
+| EXP-1 | L-1, D-3 | Código | Corrida en operación normal (400/min) con conflictos inyectados al azar |
+| EXP-2 | E-1, D-3 | Código | Corrida con rampa hasta 8.000/min, autoescalado y conflictos inyectados al azar |
+| EXP-3 | S-1, S-2 | Código | Ataques inyectados al azar en la corrida normal y en el pico; mide detección y recuperación |
 
-Herramientas: JMeter para generar carga y Prometheus para medir. Entorno: Kubernetes local con minikube, con los mismos manifiestos para pasar a AWS EKS. Las pasarelas de pago son simuladas, con latencia fija y fallas inyectables.
+Herramientas: JMeter para generar carga, Prometheus para medir y Grafana para monitorear. Entorno: Kubernetes local con minikube, con los mismos manifiestos para pasar a AWS EKS. Las pasarelas de pago son simuladas, con latencia fija y fallas inyectables.
 
 ## Cómo ver y editar los archivos
 
@@ -124,4 +123,4 @@ Notas para quien edite:
 
 ## Estado actual
 
-Etapas 1 y 2 terminadas; arquitectura dibujada; experimentación en curso (EXP-1 a EXP-3 aprobados, EXP-4 por definir). Todavía no hay código ni resultados de experimentos en el repositorio.
+Etapas 1 y 2 terminadas; arquitectura dibujada; experimentación definida (EXP-1 a EXP-3 aprobados). Todavía no hay código ni resultados de experimentos en el repositorio.
