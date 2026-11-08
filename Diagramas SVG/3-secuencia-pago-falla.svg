@@ -1,77 +1,132 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1825" height="960" viewBox="-10 -30 1825 960" font-family="Helvetica, Arial, sans-serif">
-<rect x="-10" y="-30" width="1825" height="960" fill="white"/>
+<svg xmlns="http://www.w3.org/2000/svg" width="2681" height="1850" viewBox="-10 -30 2681 1850" font-family="Helvetica, Arial, sans-serif">
+<rect x="-10" y="-30" width="2681" height="1850" fill="white"/>
 <defs><marker id="qs" markerWidth="12" markerHeight="10" refX="11" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L12,5 L0,10 z" fill="#1F3864"/></marker><marker id="qa" markerWidth="12" markerHeight="10" refX="11" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L11,5 L0,10" fill="none" stroke="#B45F06" stroke-width="1.6"/></marker><marker id="qr" markerWidth="12" markerHeight="10" refX="11" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L11,5 L0,10" fill="none" stroke="#7F8FA6" stroke-width="1.6"/></marker><marker id="qf" markerWidth="12" markerHeight="10" refX="11" refY="5" orient="auto" markerUnits="userSpaceOnUse"><path d="M0,0 L11,5 L0,10" fill="none" stroke="#C00000" stroke-width="1.6"/></marker></defs>
-<text x="28" y="15" font-size="11" font-weight="bold">Vista de Concurrencia — Secuencia de un pago con falla de pasarela y reintento (UML 2.0)</text>
-<rect x="645" y="34" width="430" height="138" fill="white" stroke="#6C8EBF" stroke-width="2"/>
-<text x="860.0" y="107.0" font-size="11" text-anchor="middle">«component» componente_grupo_pasarela  ▸ Redundancia activa</text>
-<rect x="30" y="70" width="180" height="90" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+<text x="28" y="15" font-size="11" font-weight="bold">Vista de Concurrencia — Secuencia de confirmación de compra con falla de pasarela y reintento (UML 2.0)</text>
+<rect x="1486" y="34" width="418" height="138" fill="white" stroke="#6C8EBF" stroke-width="2"/>
+<text x="1695.0" y="52" font-size="11" text-anchor="middle">«component» componente_grupo_pasarela  ▸ Redundancia activa</text>
+<rect x="20" y="70" width="200" height="90" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
 <text x="120.0" y="111.5" font-size="11" text-anchor="middle">«component»</text>
-<text x="120.0" y="126.5" font-size="11" text-anchor="middle" font-weight="bold">componente_reserva</text>
-<rect x="240" y="70" width="180" height="90" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+<text x="120.0" y="126.5" font-size="11" text-anchor="middle" font-weight="bold">componente_api_gateway</text>
+<rect x="230" y="70" width="200" height="90" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
 <text x="330.0" y="104.0" font-size="11" text-anchor="middle">«component»</text>
-<text x="330.0" y="119.0" font-size="11" text-anchor="middle" font-weight="bold">componente_orquestador_pago</text>
-<text x="330.0" y="134.0" font-size="11" text-anchor="middle">▸ Reintento</text>
-<rect x="450" y="70" width="180" height="90" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
-<text x="540.0" y="104.0" font-size="11" text-anchor="middle">«component»</text>
-<text x="540.0" y="119.0" font-size="11" text-anchor="middle" font-weight="bold">componente_verificador_salud</text>
-<text x="540.0" y="134.0" font-size="11" text-anchor="middle">▸ Ping / echo</text>
-<rect x="660" y="70" width="180" height="90" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
-<text x="750.0" y="104.0" font-size="11" text-anchor="middle">«component»</text>
-<text x="750.0" y="119.0" font-size="11" text-anchor="middle" font-weight="bold">componente_adaptador_pasarela_a</text>
-<text x="750.0" y="134.0" font-size="11" text-anchor="middle">▸ Usar un intermediario</text>
-<rect x="870" y="70" width="180" height="90" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
-<text x="960.0" y="104.0" font-size="11" text-anchor="middle">«component»</text>
-<text x="960.0" y="119.0" font-size="11" text-anchor="middle" font-weight="bold">componente_adaptador_pasarela_b</text>
-<text x="960.0" y="134.0" font-size="11" text-anchor="middle">▸ Usar un intermediario</text>
-<rect x="1080" y="70" width="180" height="90" fill="#FFFFFF" stroke="#333333" stroke-width="2"/>
-<text x="1170.0" y="111.5" font-size="11" text-anchor="middle">«external»</text>
-<text x="1170.0" y="126.5" font-size="11" text-anchor="middle" font-weight="bold">externo_pasarela_a</text>
-<rect x="1290" y="70" width="180" height="90" fill="#FFFFFF" stroke="#333333" stroke-width="2"/>
-<text x="1380.0" y="111.5" font-size="11" text-anchor="middle">«external»</text>
-<text x="1380.0" y="126.5" font-size="11" text-anchor="middle" font-weight="bold">externo_pasarela_b</text>
-<rect x="114" y="222" width="12" height="654" fill="#FFFFFF" stroke="#333333" stroke-width="2"/>
-<rect x="324" y="222" width="12" height="654" fill="#FFFFFF" stroke="#333333" stroke-width="2"/>
-<rect x="744" y="280" width="12" height="248" fill="#FFFFFF" stroke="#333333" stroke-width="2"/>
-<rect x="1164" y="338" width="12" height="74" fill="#FFFFFF" stroke="#333333" stroke-width="2"/>
-<rect x="534" y="454" width="12" height="136" fill="#FFFFFF" stroke="#333333" stroke-width="2"/>
-<rect x="954" y="628" width="12" height="192" fill="#FFFFFF" stroke="#333333" stroke-width="2"/>
-<rect x="1374" y="686" width="12" height="74" fill="#FFFFFF" stroke="#333333" stroke-width="2"/>
-<text x="1533" y="495" font-size="11" font-weight="bold">{ &amp;lt; 150 ms } detección de la falla (D-1)</text>
-<text x="1533" y="613" font-size="11" font-weight="bold">{ ≤ 300 ms } recuperación (D-2)</text>
-<line x1="120" y1="160" x2="120" y2="900" stroke="#888888" stroke-width="1.5" stroke-dasharray="8,6"/>
-<line x1="330" y1="160" x2="330" y2="900" stroke="#888888" stroke-width="1.5" stroke-dasharray="8,6"/>
-<line x1="540" y1="160" x2="540" y2="900" stroke="#888888" stroke-width="1.5" stroke-dasharray="8,6"/>
-<line x1="750" y1="160" x2="750" y2="900" stroke="#888888" stroke-width="1.5" stroke-dasharray="8,6"/>
-<line x1="960" y1="160" x2="960" y2="900" stroke="#888888" stroke-width="1.5" stroke-dasharray="8,6"/>
-<line x1="1170" y1="160" x2="1170" y2="900" stroke="#888888" stroke-width="1.5" stroke-dasharray="8,6"/>
-<line x1="1380" y1="160" x2="1380" y2="900" stroke="#888888" stroke-width="1.5" stroke-dasharray="8,6"/>
+<text x="330.0" y="119.0" font-size="11" text-anchor="middle" font-weight="bold">componente_confirmador_compra</text>
+<text x="330.0" y="134.0" font-size="11" text-anchor="middle">▸ Transacciones</text>
+<rect x="440" y="70" width="200" height="90" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+<text x="540.0" y="96.5" font-size="11" text-anchor="middle">«component»</text>
+<text x="540.0" y="111.5" font-size="11" text-anchor="middle" font-weight="bold">componente_gestor_bloqueo</text>
+<text x="540.0" y="126.5" font-size="11" text-anchor="middle">▸ Transacciones</text>
+<text x="540.0" y="141.5" font-size="11" text-anchor="middle">▸ Reducir la sobrecarga</text>
+<rect x="650" y="70" width="200" height="90" fill="#FFF2CC" stroke="#D6B656" stroke-width="2"/>
+<text x="750.0" y="111.5" font-size="11" text-anchor="middle">«datastore»</text>
+<text x="750.0" y="126.5" font-size="11" text-anchor="middle" font-weight="bold">bd_bloqueo</text>
+<rect x="860" y="70" width="200" height="90" fill="#FFF2CC" stroke="#D6B656" stroke-width="2"/>
+<text x="960.0" y="111.5" font-size="11" text-anchor="middle">«datastore»</text>
+<text x="960.0" y="126.5" font-size="11" text-anchor="middle" font-weight="bold">bd_reserva</text>
+<rect x="1070" y="70" width="200" height="90" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+<text x="1170.0" y="104.0" font-size="11" text-anchor="middle">«component»</text>
+<text x="1170.0" y="119.0" font-size="11" text-anchor="middle" font-weight="bold">componente_orquestador_pago</text>
+<text x="1170.0" y="134.0" font-size="11" text-anchor="middle">▸ Reintento</text>
+<rect x="1280" y="70" width="200" height="90" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+<text x="1380.0" y="104.0" font-size="11" text-anchor="middle">«component»</text>
+<text x="1380.0" y="119.0" font-size="11" text-anchor="middle" font-weight="bold">componente_verificador_salud</text>
+<text x="1380.0" y="134.0" font-size="11" text-anchor="middle">▸ Ping / echo</text>
+<rect x="1490" y="70" width="200" height="90" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+<text x="1590.0" y="104.0" font-size="11" text-anchor="middle">«component»</text>
+<text x="1590.0" y="119.0" font-size="11" text-anchor="middle" font-weight="bold">componente_adaptador_pasarela_a</text>
+<text x="1590.0" y="134.0" font-size="11" text-anchor="middle">▸ Usar un intermediario</text>
+<rect x="1700" y="70" width="200" height="90" fill="#DAE8FC" stroke="#6C8EBF" stroke-width="2"/>
+<text x="1800.0" y="104.0" font-size="11" text-anchor="middle">«component»</text>
+<text x="1800.0" y="119.0" font-size="11" text-anchor="middle" font-weight="bold">componente_adaptador_pasarela_b</text>
+<text x="1800.0" y="134.0" font-size="11" text-anchor="middle">▸ Usar un intermediario</text>
+<rect x="1910" y="70" width="200" height="90" fill="#FFFFFF" stroke="#333333" stroke-width="2"/>
+<text x="2010.0" y="111.5" font-size="11" text-anchor="middle">«external»</text>
+<text x="2010.0" y="126.5" font-size="11" text-anchor="middle" font-weight="bold">externo_pasarela_a</text>
+<rect x="2120" y="70" width="200" height="90" fill="#FFFFFF" stroke="#333333" stroke-width="2"/>
+<text x="2220.0" y="111.5" font-size="11" text-anchor="middle">«external»</text>
+<text x="2220.0" y="126.5" font-size="11" text-anchor="middle" font-weight="bold">externo_pasarela_b</text>
+<rect x="40" y="490" width="2200" height="1250" fill="none" stroke="#333" stroke-width="1.5"/><rect x="40" y="490" width="60" height="22" fill="#F5F5F5" stroke="#333" stroke-width="1.5"/><text x="48" y="505" font-size="12" font-weight="bold">alt</text>
+<text x="143" y="511" font-size="11" font-weight="bold">[bloqueo válido]</text>
+<text x="143" y="1671" font-size="11" font-weight="bold">[bloqueo vencido]</text>
+<rect x="114" y="222" width="12" height="1494" fill="#FFFFFF" stroke="#333333" stroke-width="2"/>
+<rect x="324" y="222" width="12" height="1494" fill="#FFFFFF" stroke="#333333" stroke-width="2"/>
+<rect x="534" y="280" width="12" height="190" fill="#FFFFFF" stroke="#333333" stroke-width="2"/>
+<rect x="534" y="1352" width="12" height="190" fill="#FFFFFF" stroke="#333333" stroke-width="2"/>
+<rect x="744" y="338" width="12" height="74" fill="#FFFFFF" stroke="#333333" stroke-width="2"/>
+<rect x="744" y="1410" width="12" height="74" fill="#FFFFFF" stroke="#333333" stroke-width="2"/>
+<rect x="954" y="1236" width="12" height="74" fill="#FFFFFF" stroke="#333333" stroke-width="2"/>
+<rect x="1164" y="540" width="12" height="654" fill="#FFFFFF" stroke="#333333" stroke-width="2"/>
+<rect x="1584" y="598" width="12" height="248" fill="#FFFFFF" stroke="#333333" stroke-width="2"/>
+<rect x="2004" y="656" width="12" height="74" fill="#FFFFFF" stroke="#333333" stroke-width="2"/>
+<rect x="1374" y="772" width="12" height="132" fill="#FFFFFF" stroke="#333333" stroke-width="2"/>
+<rect x="1794" y="946" width="12" height="190" fill="#FFFFFF" stroke="#333333" stroke-width="2"/>
+<rect x="2214" y="1004" width="12" height="74" fill="#FFFFFF" stroke="#333333" stroke-width="2"/>
+<text x="2389" y="815" font-size="11" font-weight="bold">{ &lt; 150 ms } detección de la falla (D-1)</text>
+<text x="2389" y="930" font-size="11" font-weight="bold">{ ≤ 300 ms } recuperación (D-2)</text>
+<line x1="120" y1="160" x2="120" y2="1790" stroke="#888888" stroke-width="1.5" stroke-dasharray="8,6"/>
+<line x1="330" y1="160" x2="330" y2="1790" stroke="#888888" stroke-width="1.5" stroke-dasharray="8,6"/>
+<line x1="540" y1="160" x2="540" y2="1790" stroke="#888888" stroke-width="1.5" stroke-dasharray="8,6"/>
+<line x1="750" y1="160" x2="750" y2="1790" stroke="#888888" stroke-width="1.5" stroke-dasharray="8,6"/>
+<line x1="960" y1="160" x2="960" y2="1790" stroke="#888888" stroke-width="1.5" stroke-dasharray="8,6"/>
+<line x1="1170" y1="160" x2="1170" y2="1790" stroke="#888888" stroke-width="1.5" stroke-dasharray="8,6"/>
+<line x1="1380" y1="160" x2="1380" y2="1790" stroke="#888888" stroke-width="1.5" stroke-dasharray="8,6"/>
+<line x1="1590" y1="160" x2="1590" y2="1790" stroke="#888888" stroke-width="1.5" stroke-dasharray="8,6"/>
+<line x1="1800" y1="160" x2="1800" y2="1790" stroke="#888888" stroke-width="1.5" stroke-dasharray="8,6"/>
+<line x1="2010" y1="160" x2="2010" y2="1790" stroke="#888888" stroke-width="1.5" stroke-dasharray="8,6"/>
+<line x1="2220" y1="160" x2="2220" y2="1790" stroke="#888888" stroke-width="1.5" stroke-dasharray="8,6"/>
+<line x1="40" y1="1650" x2="2240" y2="1650" stroke="#333333" stroke-width="1.5" stroke-dasharray="8,6"/>
 <line x1="126" y1="230" x2="324" y2="230" stroke="#1F3864" stroke-width="1.5" marker-end="url(#qs)"/>
-<rect x="160.1" y="213" width="129.8" height="15" fill="white" fill-opacity="0.9"/><text x="225.0" y="225" font-size="11" text-anchor="middle" fill="#1F3864">«sync» solicitar pago</text>
-<line x1="336" y1="288" x2="744" y2="288" stroke="#1F3864" stroke-width="1.5" marker-end="url(#qs)"/>
-<rect x="428.7" y="271" width="222.6" height="15" fill="white" fill-opacity="0.9"/><text x="540.0" y="283" font-size="11" text-anchor="middle" fill="#1F3864">«sync» cobrar (clave de idempotencia)</text>
-<line x1="756" y1="346" x2="1164" y2="346" stroke="#1F3864" stroke-width="1.5" marker-end="url(#qs)"/>
-<rect x="898.0" y="329" width="124.0" height="15" fill="white" fill-opacity="0.9"/><text x="960.0" y="341" font-size="11" text-anchor="middle" fill="#1F3864">«sync» invocar cobro</text>
-<line x1="1164" y1="404" x2="756" y2="404" stroke="#C00000" stroke-width="1.5" stroke-dasharray="3,4" marker-end="url(#qf)"/>
-<rect x="895.1" y="387" width="129.8" height="15" fill="white" fill-opacity="0.9"/><text x="960.0" y="399" font-size="11" text-anchor="middle" fill="#C00000" font-style="italic">sin respuesta o error</text>
-<line x1="546" y1="462" x2="744" y2="462" stroke="#1F3864" stroke-width="1.5" marker-end="url(#qs)"/>
-<rect x="588.8" y="445" width="112.39999999999999" height="15" fill="white" fill-opacity="0.9"/><text x="645.0" y="457" font-size="11" text-anchor="middle" fill="#1F3864">«sync» ping / echo</text>
-<line x1="744" y1="520" x2="546" y2="520" stroke="#C00000" stroke-width="1.5" stroke-dasharray="3,4" marker-end="url(#qf)"/>
-<rect x="603.3" y="503" width="83.39999999999999" height="15" fill="white" fill-opacity="0.9"/><text x="645.0" y="515" font-size="11" text-anchor="middle" fill="#C00000" font-style="italic">sin respuesta</text>
-<line x1="534" y1="578" x2="336" y2="578" stroke="#1F3864" stroke-width="1.5" marker-end="url(#qs)"/>
-<rect x="341.1" y="561" width="187.79999999999998" height="15" fill="white" fill-opacity="0.9"/><text x="435.0" y="573" font-size="11" text-anchor="middle" fill="#1F3864">«sync» estado: pasarela A caída</text>
-<line x1="336" y1="636" x2="954" y2="636" stroke="#1F3864" stroke-width="1.5" marker-end="url(#qs)"/>
-<rect x="530.8" y="619" width="228.4" height="15" fill="white" fill-opacity="0.9"/><text x="645.0" y="631" font-size="11" text-anchor="middle" fill="#1F3864">«sync» cobrar (reintento, misma clave)</text>
-<line x1="966" y1="694" x2="1374" y2="694" stroke="#1F3864" stroke-width="1.5" marker-end="url(#qs)"/>
-<rect x="1108.0" y="677" width="124.0" height="15" fill="white" fill-opacity="0.9"/><text x="1170.0" y="689" font-size="11" text-anchor="middle" fill="#1F3864">«sync» invocar cobro</text>
-<line x1="1374" y1="752" x2="966" y2="752" stroke="#7F8FA6" stroke-width="1.5" stroke-dasharray="3,4" marker-end="url(#qr)"/>
-<rect x="1125.4" y="735" width="89.2" height="15" fill="white" fill-opacity="0.9"/><text x="1170.0" y="747" font-size="11" text-anchor="middle" fill="#7F8FA6" font-style="italic">cobro aprobado</text>
-<line x1="954" y1="810" x2="336" y2="810" stroke="#7F8FA6" stroke-width="1.5" stroke-dasharray="3,4" marker-end="url(#qr)"/>
-<rect x="600.4" y="793" width="89.2" height="15" fill="white" fill-opacity="0.9"/><text x="645.0" y="805" font-size="11" text-anchor="middle" fill="#7F8FA6" font-style="italic">cobro aprobado</text>
-<line x1="324" y1="868" x2="126" y2="868" stroke="#7F8FA6" stroke-width="1.5" stroke-dasharray="3,4" marker-end="url(#qr)"/>
-<rect x="177.5" y="851" width="95.0" height="15" fill="white" fill-opacity="0.9"/><text x="225.0" y="863" font-size="11" text-anchor="middle" fill="#7F8FA6" font-style="italic">pago confirmado</text>
-<line x1="1386" y1="404" x2="1510" y2="404" stroke="#999999" stroke-width="1.5" stroke-dasharray="3,4"/>
-<line x1="1386" y1="578" x2="1510" y2="578" stroke="#999999" stroke-width="1.5" stroke-dasharray="3,4"/>
-<line x1="1386" y1="636" x2="1510" y2="636" stroke="#999999" stroke-width="1.5" stroke-dasharray="3,4"/>
-<line x1="1510" y1="404" x2="1510" y2="578" stroke="#333333" stroke-width="1.5"/>
-<line x1="1510" y1="578" x2="1510" y2="636" stroke="#333333" stroke-width="1.5"/>
+<rect x="174.6" y="213" width="100.8" height="15" fill="white" fill-opacity="0.9"/><text x="225.0" y="225" font-size="11" text-anchor="middle" fill="#1F3864">confirmar compra</text>
+<line x1="336" y1="288" x2="534" y2="288" stroke="#1F3864" stroke-width="1.5" marker-end="url(#qs)"/>
+<rect x="387.5" y="271" width="95.0" height="15" fill="white" fill-opacity="0.9"/><text x="435.0" y="283" font-size="11" text-anchor="middle" fill="#1F3864">validar bloqueo</text>
+<line x1="546" y1="346" x2="744" y2="346" stroke="#1F3864" stroke-width="1.5" marker-end="url(#qs)"/>
+<rect x="606.2" y="329" width="77.6" height="15" fill="white" fill-opacity="0.9"/><text x="645.0" y="341" font-size="11" text-anchor="middle" fill="#1F3864">leer bloqueo</text>
+<line x1="744" y1="404" x2="546" y2="404" stroke="#7F8FA6" stroke-width="1.5" stroke-dasharray="3,4" marker-end="url(#qr)"/>
+<rect x="597.5" y="387" width="95.0" height="15" fill="white" fill-opacity="0.9"/><text x="645.0" y="399" font-size="11" text-anchor="middle" fill="#7F8FA6" font-style="italic">bloqueo vigente</text>
+<line x1="534" y1="462" x2="336" y2="462" stroke="#7F8FA6" stroke-width="1.5" stroke-dasharray="3,4" marker-end="url(#qr)"/>
+<rect x="390.4" y="445" width="89.2" height="15" fill="white" fill-opacity="0.9"/><text x="435.0" y="457" font-size="11" text-anchor="middle" fill="#7F8FA6" font-style="italic">bloqueo válido</text>
+<line x1="336" y1="548" x2="1164" y2="548" stroke="#1F3864" stroke-width="1.5" marker-end="url(#qs)"/>
+<rect x="705.4" y="531" width="89.2" height="15" fill="white" fill-opacity="0.9"/><text x="750.0" y="543" font-size="11" text-anchor="middle" fill="#1F3864">solicitar pago</text>
+<line x1="1176" y1="606" x2="1584" y2="606" stroke="#1F3864" stroke-width="1.5" marker-end="url(#qs)"/>
+<rect x="1289.0" y="589" width="182.0" height="15" fill="white" fill-opacity="0.9"/><text x="1380.0" y="601" font-size="11" text-anchor="middle" fill="#1F3864">cobrar (clave de idempotencia)</text>
+<line x1="1596" y1="664" x2="2004" y2="664" stroke="#1F3864" stroke-width="1.5" marker-end="url(#qs)"/>
+<rect x="1758.3" y="647" width="83.39999999999999" height="15" fill="white" fill-opacity="0.9"/><text x="1800.0" y="659" font-size="11" text-anchor="middle" fill="#1F3864">invocar cobro</text>
+<line x1="2004" y1="722" x2="1596" y2="722" stroke="#C00000" stroke-width="1.5" stroke-dasharray="3,4" marker-end="url(#qf)"/>
+<rect x="1735.1" y="705" width="129.8" height="15" fill="white" fill-opacity="0.9"/><text x="1800.0" y="717" font-size="11" text-anchor="middle" fill="#C00000" font-style="italic">sin respuesta o error</text>
+<line x1="1386" y1="780" x2="1584" y2="780" stroke="#1F3864" stroke-width="1.5" marker-end="url(#qs)"/>
+<rect x="1449.1" y="763" width="71.8" height="15" fill="white" fill-opacity="0.9"/><text x="1485.0" y="775" font-size="11" text-anchor="middle" fill="#1F3864">ping / echo</text>
+<line x1="1584" y1="838" x2="1386" y2="838" stroke="#C00000" stroke-width="1.5" stroke-dasharray="3,4" marker-end="url(#qf)"/>
+<rect x="1443.3" y="821" width="83.39999999999999" height="15" fill="white" fill-opacity="0.9"/><text x="1485.0" y="833" font-size="11" text-anchor="middle" fill="#C00000" font-style="italic">sin respuesta</text>
+<line x1="1374" y1="896" x2="1176" y2="896" stroke="#1F3864" stroke-width="1.5" marker-end="url(#qs)"/>
+<rect x="1201.4" y="879" width="147.2" height="15" fill="white" fill-opacity="0.9"/><text x="1275.0" y="891" font-size="11" text-anchor="middle" fill="#1F3864">estado: pasarela A caída</text>
+<line x1="1176" y1="954" x2="1794" y2="954" stroke="#1F3864" stroke-width="1.5" marker-end="url(#qs)"/>
+<rect x="1391.1" y="937" width="187.79999999999998" height="15" fill="white" fill-opacity="0.9"/><text x="1485.0" y="949" font-size="11" text-anchor="middle" fill="#1F3864">cobrar (reintento, misma clave)</text>
+<line x1="1806" y1="1012" x2="2214" y2="1012" stroke="#1F3864" stroke-width="1.5" marker-end="url(#qs)"/>
+<rect x="1968.3" y="995" width="83.39999999999999" height="15" fill="white" fill-opacity="0.9"/><text x="2010.0" y="1007" font-size="11" text-anchor="middle" fill="#1F3864">invocar cobro</text>
+<line x1="2214" y1="1070" x2="1806" y2="1070" stroke="#7F8FA6" stroke-width="1.5" stroke-dasharray="3,4" marker-end="url(#qr)"/>
+<rect x="1965.4" y="1053" width="89.2" height="15" fill="white" fill-opacity="0.9"/><text x="2010.0" y="1065" font-size="11" text-anchor="middle" fill="#7F8FA6" font-style="italic">cobro aprobado</text>
+<line x1="1794" y1="1128" x2="1176" y2="1128" stroke="#7F8FA6" stroke-width="1.5" stroke-dasharray="3,4" marker-end="url(#qr)"/>
+<rect x="1440.4" y="1111" width="89.2" height="15" fill="white" fill-opacity="0.9"/><text x="1485.0" y="1123" font-size="11" text-anchor="middle" fill="#7F8FA6" font-style="italic">cobro aprobado</text>
+<line x1="1164" y1="1186" x2="336" y2="1186" stroke="#7F8FA6" stroke-width="1.5" stroke-dasharray="3,4" marker-end="url(#qr)"/>
+<rect x="702.5" y="1169" width="95.0" height="15" fill="white" fill-opacity="0.9"/><text x="750.0" y="1181" font-size="11" text-anchor="middle" fill="#7F8FA6" font-style="italic">pago confirmado</text>
+<line x1="336" y1="1244" x2="954" y2="1244" stroke="#1F3864" stroke-width="1.5" marker-end="url(#qs)"/>
+<rect x="597.5" y="1227" width="95.0" height="15" fill="white" fill-opacity="0.9"/><text x="645.0" y="1239" font-size="11" text-anchor="middle" fill="#1F3864">guardar reserva</text>
+<line x1="954" y1="1302" x2="336" y2="1302" stroke="#7F8FA6" stroke-width="1.5" stroke-dasharray="3,4" marker-end="url(#qr)"/>
+<rect x="594.6" y="1285" width="100.8" height="15" fill="white" fill-opacity="0.9"/><text x="645.0" y="1297" font-size="11" text-anchor="middle" fill="#7F8FA6" font-style="italic">reserva guardada</text>
+<line x1="336" y1="1360" x2="534" y2="1360" stroke="#1F3864" stroke-width="1.5" marker-end="url(#qs)"/>
+<rect x="390.4" y="1343" width="89.2" height="15" fill="white" fill-opacity="0.9"/><text x="435.0" y="1355" font-size="11" text-anchor="middle" fill="#1F3864">marcar vendido</text>
+<line x1="546" y1="1418" x2="744" y2="1418" stroke="#1F3864" stroke-width="1.5" marker-end="url(#qs)"/>
+<rect x="600.4" y="1401" width="89.2" height="15" fill="white" fill-opacity="0.9"/><text x="645.0" y="1413" font-size="11" text-anchor="middle" fill="#1F3864">marcar vendido</text>
+<line x1="744" y1="1476" x2="546" y2="1476" stroke="#7F8FA6" stroke-width="1.5" stroke-dasharray="3,4" marker-end="url(#qr)"/>
+<rect x="597.5" y="1459" width="95.0" height="15" fill="white" fill-opacity="0.9"/><text x="645.0" y="1471" font-size="11" text-anchor="middle" fill="#7F8FA6" font-style="italic">asiento vendido</text>
+<line x1="534" y1="1534" x2="336" y2="1534" stroke="#7F8FA6" stroke-width="1.5" stroke-dasharray="3,4" marker-end="url(#qr)"/>
+<rect x="393.3" y="1517" width="83.39999999999999" height="15" fill="white" fill-opacity="0.9"/><text x="435.0" y="1529" font-size="11" text-anchor="middle" fill="#7F8FA6" font-style="italic">venta marcada</text>
+<line x1="324" y1="1592" x2="126" y2="1592" stroke="#7F8FA6" stroke-width="1.5" stroke-dasharray="3,4" marker-end="url(#qr)"/>
+<rect x="171.7" y="1575" width="106.6" height="15" fill="white" fill-opacity="0.9"/><text x="225.0" y="1587" font-size="11" text-anchor="middle" fill="#7F8FA6" font-style="italic">compra confirmada</text>
+<line x1="324" y1="1708" x2="126" y2="1708" stroke="#7F8FA6" stroke-width="1.5" stroke-dasharray="3,4" marker-end="url(#qr)"/>
+<rect x="174.6" y="1691" width="100.8" height="15" fill="white" fill-opacity="0.9"/><text x="225.0" y="1703" font-size="11" text-anchor="middle" fill="#7F8FA6" font-style="italic">compra rechazada</text>
+<line x1="2226" y1="722" x2="2366" y2="722" stroke="#999999" stroke-width="1.5" stroke-dasharray="3,4"/>
+<line x1="2226" y1="896" x2="2366" y2="896" stroke="#999999" stroke-width="1.5" stroke-dasharray="3,4"/>
+<line x1="2226" y1="954" x2="2366" y2="954" stroke="#999999" stroke-width="1.5" stroke-dasharray="3,4"/>
+<line x1="2366" y1="722" x2="2366" y2="896" stroke="#333333" stroke-width="1.5"/>
+<line x1="2366" y1="896" x2="2366" y2="954" stroke="#333333" stroke-width="1.5"/>
 </svg>

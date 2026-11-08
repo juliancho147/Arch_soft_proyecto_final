@@ -109,6 +109,26 @@ ASRs: ver `ASRs-TAQ.md`. Se usan los nombres de táctica que el equipo va a expo
 
 ---
 
+## D-3 — Prevenir la doble reserva de un asiento  ✅ aprobado
+
+**Táctica que se expone:**
+
+| # | Táctica | Aplicación en D-3 |
+|---|---|---|
+| 1 | Transacciones | El bloqueo de los asientos es una sola operación atómica y aislada: o se bloquean todos los asientos pedidos o ninguno, y si dos solicitudes compiten por el mismo asiento solo una lo obtiene |
+
+**Decisiones implícitas de la arquitectura (no se exponen como tácticas):**
+
+- `componente_gestor_bloqueo` es el único que ejecuta el bloqueo sobre `bd_bloqueo`.
+- El bloqueo vence a los 8 min.
+- `bd_bloqueo` guarda tres estados por asiento: libre, bloqueado (vence a los 8 min) y vendido (no vence). Así "bloquear si libre" rechaza en una sola operación atómica tanto los asientos bloqueados como los ya vendidos. La fuente de verdad de lo vendido es `bd_reserva`, que además tiene una restricción de unicidad por evento y asiento como última defensa; al reiniciar, `bd_bloqueo` recarga los vendidos desde `bd_reserva`.
+- `componente_confirmador_compra` pide a `componente_gestor_bloqueo` marcar el asiento como vendido; el gestor sigue siendo el único que toca `bd_bloqueo`. `componente_consultor_asiento` solo entrega el precio y la información del asiento, fuera de la transacción.
+- `bd_bloqueo` tiene una sola cola de operaciones (bloquear si libre, marcar vendido y vencimiento a los 8 min) y un único hilo que las ejecuta de a una, hasta terminar cada una, sin importar el evento (ver página 7 del diagrama). Así todo grupo de asientos se bloquea completo o no se bloquea, y dos solicitudes nunca se mezclan. A cambio, el bloqueo no escala: su techo es el de ese hilo, que se mide en EXP-1. Los servicios de reserva (receptor y gestor) sí escalan horizontalmente. Partir el bloqueo por evento queda como evolución futura, no dibujada.
+
+**Descartada:** Introducir concurrencia no se usa aquí. En L-1 y E-1 sirve para la velocidad; para D-3 hay que serializar el bloqueo, no paralelizarlo.
+
+---
+
 ## M-1 — Incorporar una pasarela de pago nueva (≤ 120 horas-hombre)  ✅ aprobado
 
 **Tácticas que se exponen:**
@@ -190,5 +210,6 @@ ASRs: ver `ASRs-TAQ.md`. Se usan los nombres de táctica que el equipo va a expo
 | 16 | Usar un intermediario | M-1 | I-1 (implícito) |
 | 17 | Parametrización | M-1, M-3 | I-1 (implícito) |
 | 18 | Orquestación | I-1 | D-2 (implícito, en el orquestador de pagos) |
+| 19 | Transacciones | D-3 | |
 
-18 tácticas expuestas para los 9 ASRs priorizados. I-1 expone Orquestación y usa de forma implícita las de M-1. Coreografía queda fuera, como decisión implícita.
+19 tácticas expuestas: 18 de los 9 ASRs de la primera priorización (de ellos, L-1, E-1 y S-1 quedaron priorizados y S-2, D-1, D-2, M-1, M-3 e I-1 subpriorizados) y 1 de D-3, priorizado. I-1 expone Orquestación y usa de forma implícita las de M-1. Coreografía queda fuera, como decisión implícita.
