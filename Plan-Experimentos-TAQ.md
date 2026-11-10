@@ -26,8 +26,7 @@ ASRs: ver `ASRs-TAQ.md`. Tácticas: ver `Tacticas-TAQ.md`. Arquitectura: `Arquit
 
 ### 1. Hipótesis
 
-- **L-1:** con 400 solicitudes de reserva por minuto y una réplica, el p95 de reservar un asiento es ≤ 150 ms.
-- **D-3:** aun cuando se inyectan al azar solicitudes simultáneas sobre un mismo asiento, o sobre grupos de asientos que se cruzan, solo una solicitud obtiene cada asiento. Las demás se rechazan sin dejar bloqueado ninguno de sus asientos, y no queda ningún asiento con más de una reserva.
+Con la carga normal de reservas y una sola réplica, reservar un asiento cumple el tiempo de respuesta definido. Aun cuando se inyectan al azar solicitudes simultáneas sobre un mismo asiento, o sobre grupos de asientos que se cruzan, solo una solicitud obtiene cada asiento. Las demás se rechazan sin dejar bloqueado ninguno de los suyos, y ningún asiento queda con más de una reserva.
 
 ### 2. Tácticas a probar
 
@@ -74,8 +73,7 @@ Con cierta probabilidad (una de cada 20 llegadas), la llegada dispara un conflic
 
 ### 1. Hipótesis
 
-- **E-1:** si cada tipo de pod escala solo, con un máximo de 8 réplicas, entonces con 8.000 solicitudes de reserva por minuto sostenidas 15 min el sistema se estabiliza con 8 réplicas o menos por pod y el p95 de reservar es < 250 ms. El hilo único de `bd_bloqueo` atiende esa carga sin ser el cuello de botella.
-- **D-3:** aun en el pico, con varias réplicas compitiendo por el mismo `bd_bloqueo` y conflictos inyectados al azar, no queda ningún asiento con más de una reserva ni ningún bloqueo parcial.
+Si cada tipo de pod escala solo, hasta un máximo de 8 réplicas, entonces con la carga del pico sostenida el sistema se estabiliza sin llegar a ese máximo y reservar cumple el tiempo de respuesta definido para el pico. El hilo único de `bd_bloqueo` atiende esa carga sin ser el cuello de botella. Además, aun con varias réplicas compitiendo por el mismo `bd_bloqueo` y con conflictos inyectados al azar, ningún asiento queda con más de una reserva ni con un bloqueo parcial.
 
 ### 2. Tácticas a probar
 
@@ -122,8 +120,7 @@ Con cierta probabilidad (una de cada 20 llegadas), la llegada dispara un conflic
 
 ### 1. Hipótesis
 
-- **S-1:** si `componente_api_gateway` publica cada solicitud como evento en `cola_evento_trafico` y `componente_deteccion_ataque` las evalúa de forma asíncrona, entonces un ataque de reventa se detecta en ≤ 100 ms desde que el evento llega al detector, tanto en operación normal como en el pico.
-- **S-2:** si `componente_respuesta_ataque` revoca el acceso y restaura el estado apoyándose en un índice en memoria, entonces tras la alerta del detector quedan liberados los asientos retenidos, canceladas las órdenes y revocadas las cuentas en ≤ 300 ms, sin afectar a los demás compradores.
+Si `componente_api_gateway` publica cada solicitud como evento en `cola_evento_trafico` y `componente_deteccion_ataque` las evalúa de forma asíncrona, entonces un ataque de reventa se detecta dentro del tiempo definido desde que el evento llega al detector, tanto con tráfico normal como en el pico. Si además `componente_respuesta_ataque` revoca el acceso y restaura el estado apoyándose en un índice en memoria, entonces tras la alerta quedan liberados los asientos retenidos, canceladas las órdenes y revocadas las cuentas dentro del tiempo definido, sin afectar a los demás compradores.
 
 ### 2. Tácticas a probar
 
