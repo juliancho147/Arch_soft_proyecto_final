@@ -1,0 +1,68 @@
+apiVersion: v1
+kind: Namespace
+metadata: { name: taq }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata: { name: pg-init, namespace: taq }
+data:
+  init.sql: |
+    CREATE TABLE asiento (id INT PRIMARY KEY, zona TEXT NOT NULL, precio INT NOT NULL);
+    INSERT INTO asiento SELECT g, 'Z' || (g % 4), 50000 + (g % 7) * 10000 FROM generate_series(1,130000) g;
+    -- esquema_reserva: bitácora de reservas SIN restricción de unicidad, para que el verificador
+    -- pueda detectar una doble reserva en vez de que la base la oculte.
+    CREATE TABLE reserva_log (id BIGSERIAL PRIMARY KEY, asiento INT NOT NULL, comprador TEXT NOT NULL,
+                              solicitud_id TEXT NOT NULL, estado TEXT NOT NULL, ts BIGINT NOT NULL);
+    CREATE INDEX ON reserva_log(asiento);
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: postgres, namespace: taq }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: postgres } }
+  template:
+    metadata: { labels: { app: postgres } }
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16
+          env:
+            - { name: POSTGRES_USER, value: taq }
+            - { name: POSTGRES_PASSWORD, value: taq }
+            - { name: POSTGRES_DB, value: taq }
+          ports: [{ containerPort: 5432 }]
+          resources: { requests: { cpu: 250m, memory: 256Mi }, limits: { cpu: "1", memory: 512Mi } }
+          volumeMounts: [{ name: init, mountPath: /docker-entrypoint-initdb.d }]
+      volumes: [{ name: init, configMap: { name: pg-init } }]
+---
+apiVersion: v1
+kind: Service
+metadata: { name: postgres, namespace: taq }
+spec: { selector: { app: postgres }, ports: [{ port: 5432 }] }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: postgres-ext, namespace: taq }
+spec: { type: NodePort, selector: { app: postgres }, ports: [{ port: 5432, nodePort: 30432 }] }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: redis, namespace: taq }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: redis } }
+  template:
+    metadata: { labels: { app: redis } }
+    spec:
+      containers:
+        - name: redis
+          image: redis:7
+          args: ["--save", "", "--appendonly", "no"]
+          ports: [{ containerPort: 6379 }]
+          resources: { requests: { cpu: 100m, memory: 128Mi }, limits: { cpu: "1", memory: 384Mi } }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: redis, namespace: taq }
+spec: { selector: { app: redis }, ports: [{ port: 6379 }] }

@@ -1,0 +1,46 @@
+{
+  "ventanas": {
+    "pico_inicio": 1795121804.691,
+    "pico_fin": 1795122704.691
+  },
+  "desfase_reloj_prometheus_s": 0.0,
+  "replicas": {
+    "nodo-entrada": {
+      "maximo": 4,
+      "final": 0,
+      "ultimo_cambio_s": 1130
+    },
+    "nodo-pasarela": {
+      "maximo": 3,
+      "final": 1,
+      "ultimo_cambio_s": 740
+    },
+    "nodo-reserva": {
+      "maximo": 5,
+      "final": 1,
+      "ultimo_cambio_s": 860
+    }
+  },
+  "equilibrio_desde_s": 1130,
+  "p95_pico_completo_ms": 3065.499201592165,
+  "p95_tras_equilibrio_ms": null,
+  "pct_bajo_200ms_pico": 65.32167839146348,
+  "pct_bajo_300ms_pico": 70.49490348133185,
+  "solicitudes_en_pico": 23159.58009715903,
+  "solicitudes_por_min_en_pico": 1543.9720064772687,
+  "rechazos_cola_llena_total": 0.0,
+  "errores_tecnicos": 0.0,
+  "hilo_unico": {
+    "ops_s_max": 209.0825357414601,
+    "ops_s_prom": 51.163079004608065,
+    "ocupado_pct_max": 5.857696939755179,
+    "cola_operacion_max": 9.0
+  },
+  "cliente": {
+    "p95_pico_ms": 10001,
+    "solicitudes_pico": 120747,
+    "retraso_generador_p95_ms": 125850
+  },
+  "valida": false,
+  "asr_e1_cumple": false
+}

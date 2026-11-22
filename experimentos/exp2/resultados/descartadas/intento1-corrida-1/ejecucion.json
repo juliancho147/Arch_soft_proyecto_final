@@ -1,0 +1,17 @@
+{
+    "semilla": 1,
+    "perfil": "rampa",
+    "rampa_s": 120,
+    "tasa_pico_por_min": 8000,
+    "descuenta_conflictos": true,
+    "tasa_por_min": 400,
+    "calentamiento_s": 60,
+    "trafico_s": 1020,
+    "inicio_epoch_ms": 1795121624691,
+    "fin_calentamiento_epoch_ms": 1795121684691,
+    "fin_trafico_epoch_ms": 1795122704691,
+    "llegadas_normales": 93974,
+    "conflictos": 4718,
+    "p_conflicto": 0.05,
+    "p_confirma": 0.7
+}

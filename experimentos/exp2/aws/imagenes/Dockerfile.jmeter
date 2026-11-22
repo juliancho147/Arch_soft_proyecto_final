@@ -1,0 +1,8 @@
+# Generador de carga para EKS (arm64). Contexto de construcción: experimentos/
+FROM eclipse-temurin:17-jre
+ARG JMETER=5.6.3
+RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates && rm -rf /var/lib/apt/lists/* \
+ && curl -fsSL https://archive.apache.org/dist/jmeter/binaries/apache-jmeter-${JMETER}.tgz | tar -xz -C /opt \
+ && ln -s /opt/apache-jmeter-${JMETER}/bin/jmeter /usr/local/bin/jmeter
+COPY exp1/carga /carga
+WORKDIR /resultados

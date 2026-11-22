@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Panel de control EXP-1</title>
+<style>
+:root{--bg:#0e1116;--panel:#171c24;--borde:#262d38;--txt:#e6e9ee;--sec:#8a94a3;--ok:#3fb950;--mal:#f85149;--mor:#a371f7;--azul:#58a6ff;--amb:#d29922}
+@media (prefers-color-scheme:light){:root{--bg:#f4f6f9;--panel:#fff;--borde:#d8dee6;--txt:#1b2430;--sec:#5b6676}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--txt);font:15px/1.45 system-ui,-apple-system,Segoe UI,sans-serif}
+header{padding:14px 20px;border-bottom:1px solid var(--borde);display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+header h1{font-size:18px;margin:0;flex:1}a{color:var(--azul)}
+main{display:grid;grid-template-columns:repeat(12,1fr);gap:14px;padding:16px 20px;max-width:1400px;margin:auto}
+.card{background:var(--panel);border:1px solid var(--borde);border-radius:10px;padding:14px}
+.c4{grid-column:span 4}.c5{grid-column:span 5}.c6{grid-column:span 6}.c7{grid-column:span 7}.c8{grid-column:span 8}.c12{grid-column:span 12}
+@media(max-width:900px){.c4,.c5,.c6,.c7,.c8{grid-column:span 12}}
+h2{font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--sec);margin:0 0 10px}
+label{display:block;font-size:13px;color:var(--sec);margin:10px 0 4px}
+input[type=range]{width:100%}select,input[type=number]{width:100%;padding:7px;border-radius:6px;border:1px solid var(--borde);background:var(--bg);color:var(--txt)}
+.val{font-size:22px;font-weight:600}.row{display:flex;gap:8px;margin-top:12px}
+button{flex:1;padding:10px;border:0;border-radius:8px;font-weight:600;cursor:pointer;color:#fff;font-size:14px}
+.go{background:var(--ok)}.stop{background:var(--mal)}.gris{background:#4b5563}.boom{background:var(--mor);font-size:16px;padding:14px}
+button:disabled{opacity:.45;cursor:not-allowed}
+.sem{display:flex;gap:12px;flex-wrap:wrap}.s{flex:1;min-width:150px;border-radius:10px;padding:12px;border:1px solid var(--borde)}
+.s b{display:block;font-size:26px}.s small{color:var(--sec)}.verde{background:rgba(63,185,80,.15);border-color:var(--ok)}.rojo{background:rgba(248,81,73,.15);border-color:var(--mal)}.gr{background:var(--bg)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px}.k b{display:block;font-size:22px}.k small{color:var(--sec)}
+canvas{width:100%;height:170px;display:block}
+.ev{border:1px solid var(--borde);border-left:4px solid var(--ok);border-radius:8px;padding:10px;margin-bottom:8px}.ev.mal{border-left-color:var(--mal)}
+.ev small{color:var(--sec)}.estado{padding:3px 10px;border-radius:99px;font-size:12px;font-weight:600}
+.on{background:rgba(63,185,80,.2);color:var(--ok)}.off{background:rgba(138,148,163,.2);color:var(--sec)}
+</style></head><body>
+<header><h1>Panel de control · EXP-1 reservas</h1><span id="est" class="estado off">detenido</span>
+<span style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+ <span><a id="g1" href="#" target="_blank">Grafana EXP-1 ↗</a> <button id="bv1" class="gris" style="flex:none;padding:4px 10px;font-size:12px" title="Abre el tablero de EXP-1 mostrando solo lo que ocurra desde ahora">↺ reiniciar vista</button> <small id="vd1" style="color:var(--sec)"></small></span>
+ <span><a id="g2" href="#" target="_blank">Grafana EXP-2 ↗</a> <button id="bv2" class="gris" style="flex:none;padding:4px 10px;font-size:12px" title="Abre el tablero de EXP-2 mostrando solo lo que ocurra desde ahora">↺ reiniciar vista</button> <small id="vd2" style="color:var(--sec)"></small></span></span>
+</header>
+<main>
+ <section class="card c12"><h2>Cumplimiento de los ASR (en vivo)</h2>
+  <div class="sem">
+   <div class="s gr" id="sl1"><small>L-1 · p95 de reservar ≤ <span id="lim">150</span> ms</small><b id="p95">–</b><small id="p95b"></small></div>
+   <div class="s gr" id="sd3"><small>D-3 · dobles reservas en las inyecciones</small><b id="dob">–</b><small id="dobb">sin inyecciones aún</small></div>
+  </div></section>
+
+ <section class="card c4"><h2>1 · Tráfico en ambiente normal</h2>
+  <label>Ritmo (fijo, según el ASR L-1)</label><div class="val">400 <small style="font-size:14px;color:var(--sec)">solicitudes / min</small></div>
+  <label>Duración del ambiente normal</label><div class="val"><span id="durv">5</span> min</div>
+  <input id="dur" type="range" min="1" max="20" value="5">
+  <div class="row"><button class="go" id="bi">▶ Iniciar</button><button class="stop" id="bd">■ Detener</button></div>
+  <div class="row"><button class="gris" id="br">↺ Reiniciar estado del sistema</button></div>
+  <small style="color:var(--sec);display:block;margin-top:8px">Llegadas aleatorias (Poisson). 70 % confirma el pago, 30 % abandona. Puedes detenerlo cuando quieras.</small>
+ </section>
+
+ <section class="card c4"><h2>2 · Inyectar compras simultáneas</h2>
+  <label>Solicitudes al mismo tiempo</label><div class="val"><span id="nv">5</span></div>
+  <input id="n" type="range" min="2" max="20" value="5">
+  <label>Tipo de conflicto</label>
+  <select id="tipo"><option value="mismo">Misma silla</option><option value="cruzados">Grupos de sillas que se cruzan</option><option value="vendido">Silla ya vendida</option><option value="aleatorio">Aleatorio</option></select>
+  <div class="row"><button class="boom" id="bx">⚡ Inyectar ahora</button></div>
+  <small style="color:var(--sec);display:block;margin-top:8px">Elige una silla al azar de los datos precargados. Se puede pulsar cuantas veces quieras, con o sin tráfico normal.</small>
+ </section>
+
+ <section class="card c4"><h2>3 · Rampa al pico (EXP-2)</h2>
+  <label>Pico sostenido</label><div class="val"><span id="pkv">15</span> min</div>
+  <input id="pk" type="range" min="1" max="15" value="15">
+  <div class="val" style="font-size:14px;margin-top:10px;color:var(--sec)">1 min a 400/min → rampa de 2 min → 8.000/min</div>
+  <div class="row"><button class="go" id="brp" style="background:var(--azul)">▲ Iniciar rampa al pico</button></div>
+  <small style="color:var(--sec);display:block;margin-top:8px">Incluye conflictos al azar (1 de cada 20 llegadas). El ASR de este modo es p95 &lt; 250 ms.</small>
+  <div class="val" id="fase" style="font-size:16px;margin-top:8px"></div>
+ </section>
+
+ <section class="card c4"><h2>Límite de pods (autoescalado)</h2>
+  <label>Máximo de réplicas por pod</label><div class="val"><span id="mxv">5</span> réplicas</div>
+  <input id="mx" type="range" min="1" max="8" value="5">
+  <div class="row"><button class="go" id="bmx" style="background:var(--azul)">Aplicar límite</button><button class="gris" id="bm1">1 fija (EXP-1)</button></div>
+  <div id="podsv" style="margin-top:10px;font-size:14px;color:var(--sec)">leyendo…</div>
+  <small style="color:var(--sec);display:block;margin-top:6px">Aplica a nodo-entrada, nodo-reserva y nodo-pasarela. Se puede cambiar con la prueba en curso.</small>
+ </section>
+
+ <section class="card c4"><h2>Contadores</h2><div class="kpis">
+  <div class="k"><b id="kt">0</b><small>transcurrido</small></div><div class="k"><b id="ke">0</b><small>enviadas</small></div>
+  <div class="k"><b id="kok">0</b><small>aprobadas</small></div><div class="k"><b id="kc">0</b><small>canceladas</small></div>
+  <div class="k"><b id="kf">0</b><small>compras confirmadas</small></div><div class="k"><b id="kerr">0</b><small>errores técnicos</small></div></div>
+  <small id="car" style="color:var(--sec);display:block;margin-top:12px"></small></section>
+
+ <section class="card c6"><h2>Solicitudes simultáneas a una misma silla</h2><canvas id="g2"></canvas></section>
+ <section class="card c6"><h2>Resultado por inyección: aprobadas (verde) vs. no aprobadas (rojo)</h2><canvas id="g3"></canvas></section>
+ <section class="card c6"><h2>p95 del cliente vs. límite del ASR (ms)</h2><canvas id="g1"></canvas></section>
+
+ <section class="card c12"><h2>Resultado de cada inyección</h2><div id="evs"><small style="color:var(--sec)">Aún no hay inyecciones.</small></div></section>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+// Vistas de Grafana: cada tablero (EXP-1 y EXP-2) guarda su propio "desde cuándo" y el enlace lo abre sin la historia anterior.
+const TABLEROS={1:'exp1asr',2:'exp2asr'};
+const gget=n=>{try{return +localStorage.getItem('vistaDesde'+n)||0}catch(e){return 0}};
+function gvista(n,reiniciar){ if(reiniciar){try{localStorage.setItem('vistaDesde'+n,String(Date.now()))}catch(e){}}
+ const d=gget(n), q=d?`from=${d}&to=now`:'from=now-30m&to=now';
+ $('g'+n).href=`http://localhost:30300/d/${TABLEROS[n]}?orgId=1&${q}&refresh=5s`;
+ $('vd'+n).textContent=d?'desde '+new Date(d).toLocaleTimeString():'últimos 30 min'; }
+const gtodas=r=>{gvista(1,r);gvista(2,r)};
+const post=(u,b)=>fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b||{})}).then(r=>r.json());
+$('dur').oninput=()=>$('durv').textContent=$('dur').value;
+$('pk').oninput=()=>$('pkv').textContent=$('pk').value;
+$('brp').onclick=()=>{gtodas(true);return post('/api/rampa',{pico_min:+$('pk').value})};
+$('mx').oninput=()=>$('mxv').textContent=$('mx').value;
+$('bmx').onclick=async()=>{const r=await post('/api/pods',{max:+$('mx').value});if(r.error)alert(r.error)};
+$('bm1').onclick=async()=>{$('mx').value=1;$('mxv').textContent=1;const r=await post('/api/pods',{max:1,min:1});if(r.error)alert(r.error)};
+$('n').oninput=()=>$('nv').textContent=$('n').value;
+$('bv1').onclick=()=>{gvista(1,true);window.open($('g1').href,'_blank')};
+$('bv2').onclick=()=>{gvista(2,true);window.open($('g2').href,'_blank')};
+$('bi').onclick=()=>{gtodas(true);return post('/api/iniciar',{rpm:400,duracion_s:+$('dur').value*60})};
+$('bd').onclick=()=>post('/api/detener');
+$('br').onclick=async()=>{if(!confirm('Esto detiene el tráfico y reinicia bd_bloqueo, colas y reserva_log. ¿Continuar?'))return;$('br').disabled=true;$('br').textContent='Reiniciando…';const rr=await post('/api/reiniciar');gtodas(true);if(rr.error)alert(rr.error);$('br').disabled=false;$('br').textContent='↺ Reiniciar estado del sistema'};
+$('bx').onclick=async()=>{$('bx').disabled=true;await post('/api/conflicto',{n:+$('n').value,tipo:$('tipo').value});$('bx').disabled=false;act()};
+const NOM={mismo:'Misma silla',cruzados:'Grupos que se cruzan',vendido:'Silla ya vendida'};
+function mmss(s){return Math.floor(s/60)+':'+String(s%60).padStart(2,'0')}
+function lineas(cv,serie,key,opts){
+ const dpr=devicePixelRatio||1,w=cv.clientWidth,h=cv.clientHeight;cv.width=w*dpr;cv.height=h*dpr;const c=cv.getContext('2d');c.scale(dpr,dpr);c.clearRect(0,0,w,h);
+ const css=getComputedStyle(document.body),sec=css.getPropertyValue('--sec'),borde=css.getPropertyValue('--borde');
+ const vals=serie.map(p=>p[key]??0);let max=Math.max(opts.min||1,...vals,opts.limite||0)*1.15;
+ const X=i=>30+i*(w-36)/Math.max(1,serie.length-1),Y=v=>h-18-(v/max)*(h-28);
+ c.strokeStyle=borde;c.fillStyle=sec;c.font='11px sans-serif';
+ for(let k=0;k<=4;k++){const v=max*k/4,y=Y(v);c.beginPath();c.moveTo(30,y);c.lineTo(w-6,y);c.stroke();c.fillText(v.toFixed(opts.dec||0),0,y+3)}
+ if(opts.limite){c.strokeStyle='#f85149';c.setLineDash([5,4]);c.beginPath();c.moveTo(30,Y(opts.limite));c.lineTo(w-6,Y(opts.limite));c.stroke();c.setLineDash([]);c.fillStyle='#f85149';c.fillText('ASR '+opts.limite+' ms',w-80,Y(opts.limite)-4)}
+ if(!serie.length)return;c.beginPath();serie.forEach((p,i)=>{const x=X(i),y=Y(p[key]??0);if(opts.paso&&i){c.lineTo(x,Y(serie[i-1][key]??0))}i?c.lineTo(x,y):c.moveTo(x,y)});
+ c.strokeStyle=opts.color;c.lineWidth=2;c.stroke();c.lineTo(X(serie.length-1),Y(0));c.lineTo(X(0),Y(0));c.fillStyle=opts.color+'33';c.fill();
+}
+function barras(cv,evs){
+ const dpr=devicePixelRatio||1,w=cv.clientWidth,h=cv.clientHeight;cv.width=w*dpr;cv.height=h*dpr;const c=cv.getContext('2d');c.scale(dpr,dpr);c.clearRect(0,0,w,h);
+ const css=getComputedStyle(document.body),sec=css.getPropertyValue('--sec'),borde=css.getPropertyValue('--borde');
+ const L=evs.slice(0,12).reverse();if(!L.length){c.fillStyle=sec;c.font='13px sans-serif';c.fillText('Aún no hay inyecciones.',30,h/2);return}
+ const max=Math.max(...L.map(e=>e.confirmadas+e.canceladas),2)*1.15,bw=Math.min(40,(w-40)/L.length*0.7),Y=v=>h-20-(v/max)*(h-34);
+ c.strokeStyle=borde;c.fillStyle=sec;c.font='11px sans-serif';
+ for(let k=0;k<=4;k++){const v=max*k/4,y=Y(v);c.beginPath();c.moveTo(30,y);c.lineTo(w-6,y);c.stroke();c.fillText(Math.round(v),4,y+3)}
+ L.forEach((e,i)=>{const x=36+i*((w-46)/L.length)+((w-46)/L.length-bw)/2;
+  c.fillStyle='#3fb950';c.fillRect(x,Y(e.confirmadas),bw,Y(0)-Y(e.confirmadas));
+  c.fillStyle='#f85149';c.fillRect(x,Y(e.confirmadas+e.canceladas),bw,Y(e.confirmadas)-Y(e.confirmadas+e.canceladas));
+  c.fillStyle=sec;c.fillText(e.hora,x-4,h-5);
+  c.fillStyle='#fff';c.font='bold 11px sans-serif';if(e.confirmadas)c.fillText(e.confirmadas,x+bw/2-3,Y(e.confirmadas/2)+4);if(e.canceladas)c.fillText(e.canceladas,x+bw/2-3,Y(e.confirmadas+e.canceladas/2)+4);c.font='11px sans-serif'})}
+async function act(){
+ let d;try{d=await (await fetch('/api/estado')).json()}catch(e){return}
+ const s=d.s;$('est').textContent=s.corriendo?'tráfico en curso'+(s.tiempo_restante!=null?' · quedan '+mmss(s.tiempo_restante):''):'detenido';$('est').className='estado '+(s.corriendo?'on':'off');
+ $('bi').disabled=s.corriendo;$('brp').disabled=s.corriendo;$('fase').textContent=s.modo==='rampa'?'Fase: '+s.fase+' · '+Math.round(s.rpm)+' solicitudes/min':'';$('bd').disabled=!s.corriendo;
+ const pi=d.pods||{};$('podsv').innerHTML=(pi.hpas&&pi.hpas.length)?pi.hpas.map(x=>`<b style="color:var(--txt)">${x.nombre.replace('nodo-','')}</b> ${x.actual}/${x.max}`).join(' · ')+'<br><small>réplicas actuales / máximo permitido</small>':'sin datos de autoescalado'+(pi.error?' ('+pi.error+')':'');
+ $('kt').textContent=mmss(s.transcurrido);$('ke').textContent=s.enviadas;$('kok').textContent=s.ok;$('kc').textContent=s.canceladas;$('kf').textContent=s.confirmadas;$('kerr').textContent=s.errores;
+ $('car').textContent=d.carpeta?'Resultados en: '+d.carpeta.split('/experimentos/')[1]:'';
+ const ref=d.p95_gateway_ms??d.p95_cliente_ms;
+ $('p95').textContent=ref==null?'–':ref.toFixed(1)+' ms';$('p95b').textContent=d.p95_gateway_ms!=null?'medido en el gateway (último minuto) · cliente '+(d.p95_cliente_ms??0).toFixed(0)+' ms':'medido en el cliente (último minuto)';
+ $('lim').textContent=d.limite;$('sl1').className='s '+(d.l1==null?'gr':d.l1?'verde':'rojo');
+ $('dob').textContent=d.d3==null?'–':d.dobles+' dobles · '+(d.d3?'✅ cumple':'❌ NO cumple');$('dobb').textContent=d.n_conflictos?d.n_conflictos+' inyecciones evaluadas':'sin inyecciones aún';
+ $('sd3').className='s '+(d.d3==null?'gr':d.d3?'verde':'rojo');
+ barras($('g3'),d.eventos);
+ lineas($('g2'),d.serie,'pico',{color:'#a371f7',paso:true,min:3});
+ const sp=d.serie.map(p=>({p95:p.p95}));lineas($('g1'),sp,'p95',{color:'#58a6ff',limite:d.limite,min:20,dec:0});
+ if(d.eventos.length)$('evs').innerHTML=d.eventos.map(e=>`<div class="ev ${e.cumple?'':'mal'}"><b>${e.hora} · ${NOM[e.tipo]}</b> — ${e.n} solicitudes simultáneas a ${e.sillas.length==1?'la silla '+e.sillas[0]:'las sillas '+e.sillas.join(', ')}<br>
+  <b style="color:var(--ok)">${e.confirmadas} confirmada${e.confirmadas==1?'':'s'}</b> · <b style="color:var(--mal)">${e.canceladas} cancelada${e.canceladas==1?'':'s'}</b>${e.errores?' · '+e.errores+' con error':''} · ${e.cumple?'✅ cumple D-3':'❌ INCUMPLE D-3'}${e.nota?'<br><small>'+e.nota+'</small>':''}</div>`).join('');
+}
+gtodas(false);
+setInterval(act,1000);act();
+</script></body></html>

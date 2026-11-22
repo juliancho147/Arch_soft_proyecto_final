@@ -1,0 +1,53 @@
+# Clúster EKS efímero para EXP-2 (y EXP-3). Se crea con scripts/01-crear-cluster.sh y se destruye con scripts/99-destruir.sh.
+# Todo en Graviton (arm64): la imagen que ya construimos en el Mac es arm64, y es más barato que x86.
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+metadata:
+  name: taq-exp
+  region: us-east-1
+  version: "1.31"
+  tags: { proyecto: taq-reto4, experimento: exp2, efimero: "true" }
+availabilityZones: [us-east-1a, us-east-1b]     # el plano de control exige 2 zonas; los nodos van en una sola (ver abajo)
+iam:
+  withOIDC: true
+addons:
+  - name: vpc-cni
+  - name: coredns
+  - name: kube-proxy
+  - name: metrics-server                          # lo necesita el autoescalador de pods (HPA)
+  - name: aws-ebs-csi-driver                      # discos gp3 para Prometheus
+    wellKnownPolicies: { ebsCSIController: true }
+managedNodeGroups:
+  # Datos, monitoreo y bd_bloqueo: estables, no escalan.
+  - name: sistema
+    instanceType: m7g.large                       # 2 vCPU / 8 GiB
+    desiredCapacity: 2
+    minSize: 2
+    maxSize: 2
+    availabilityZones: [us-east-1a]
+    volumeSize: 30
+    labels: { rol: sistema }
+  # Pods que escalan (nodo_entrada, nodo_reserva, nodo_pasarela): el autoescalador de nodos agrega o quita máquinas.
+  - name: app
+    instanceType: m7g.xlarge                      # 4 vCPU / 16 GiB
+    desiredCapacity: 2
+    minSize: 2
+    maxSize: 6
+    availabilityZones: [us-east-1a]
+    volumeSize: 30
+    labels: { rol: app }
+    tags:
+      k8s.io/cluster-autoscaler/enabled: "true"
+      k8s.io/cluster-autoscaler/taq-exp: "owned"
+    iam:
+      withAddonPolicies: { autoScaler: true }
+  # Generador de carga (JMeter y panel de inyección) aislado, para que no sea el límite ni compita con los pods medidos.
+  - name: carga
+    instanceType: c7g.xlarge                      # 4 vCPU / 8 GiB
+    desiredCapacity: 1
+    minSize: 1
+    maxSize: 1
+    availabilityZones: [us-east-1a]
+    volumeSize: 30
+    labels: { rol: carga }
+    taints: [{ key: rol, value: carga, effect: NoSchedule }]

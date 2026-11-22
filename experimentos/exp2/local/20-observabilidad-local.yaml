@@ -1,0 +1,71 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata: { name: prometheus, namespace: taq }
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata: { name: prometheus-taq }
+rules: [{ apiGroups: [""], resources: [pods], verbs: [get, list, watch] }]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata: { name: prometheus-taq }
+roleRef: { apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: prometheus-taq }
+subjects: [{ kind: ServiceAccount, name: prometheus, namespace: taq }]
+---
+apiVersion: v1
+kind: ConfigMap
+metadata: { name: prom-config, namespace: taq }
+data:
+  prometheus.yml: |
+    global: { scrape_interval: 5s, evaluation_interval: 5s }
+    scrape_configs:
+      - job_name: taq
+        metrics_path: /actuator/prometheus
+        kubernetes_sd_configs: [{ role: pod, namespaces: { names: [taq] } }]
+        relabel_configs:
+          - { source_labels: [__meta_kubernetes_pod_label_taq_metricas], action: keep, regex: "true" }
+          - { source_labels: [__meta_kubernetes_pod_ip], target_label: __address__, replacement: "$1:8080" }
+          - { source_labels: [__meta_kubernetes_pod_name], target_label: pod }
+      - job_name: kube-state-metrics
+        static_configs: [{ targets: ["kube-state-metrics:8080"] }]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata: { name: ksm-taq }
+rules:
+  - { apiGroups: [""], resources: [pods, nodes, namespaces], verbs: [list, watch] }
+  - { apiGroups: [apps], resources: [deployments, replicasets], verbs: [list, watch] }
+  - { apiGroups: [autoscaling], resources: [horizontalpodautoscalers], verbs: [list, watch] }
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata: { name: kube-state-metrics, namespace: taq }
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata: { name: ksm-taq }
+roleRef: { apiGroup: rbac.authorization.k8s.io, kind: ClusterRole, name: ksm-taq }
+subjects: [{ kind: ServiceAccount, name: kube-state-metrics, namespace: taq }]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: kube-state-metrics, namespace: taq }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: kube-state-metrics } }
+  template:
+    metadata: { labels: { app: kube-state-metrics } }
+    spec:
+      serviceAccountName: kube-state-metrics
+      containers:
+        - name: ksm
+          image: registry.k8s.io/kube-state-metrics/kube-state-metrics:v2.13.0
+          args: ["--resources=deployments,horizontalpodautoscalers,pods,nodes"]
+          ports: [{ containerPort: 8080 }]
+          resources: { requests: { cpu: 20m, memory: 32Mi }, limits: { memory: 96Mi } }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: kube-state-metrics, namespace: taq }
+spec: { selector: { app: kube-state-metrics }, ports: [{ port: 8080 }] }

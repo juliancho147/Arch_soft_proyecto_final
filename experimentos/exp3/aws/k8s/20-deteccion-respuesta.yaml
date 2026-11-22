@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: deteccion, namespace: taq }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: deteccion } }
+  template:
+    metadata:
+      labels: { app: deteccion, taq-metricas: "true" }
+    spec:
+      nodeSelector: { rol: sistema, kubernetes.io/arch: arm64 }
+      terminationGracePeriodSeconds: 20
+      containers:
+        - name: deteccion
+          image: 767397902469.dkr.ecr.us-east-1.amazonaws.com/taq-plataforma:1.1
+          imagePullPolicy: IfNotPresent
+          ports: [{ name: http, containerPort: 8080 }]
+          env:
+            - { name: TAQ_ROLE, value: "deteccion" }
+            - { name: JAVA_OPTS, value: "-Xmx320m -XX:+UseG1GC" }
+            - { name: TAQ_REDIS_URL, value: "redis://redis:6379" }
+            - { name: TAQ_BLOQUEO_URL, value: "http://bd-bloqueo:8080" }
+            - { name: TAQ_RESERVA_URL, value: "http://nodo-reserva:8080" }
+            - { name: TAQ_PASARELA_URL, value: "http://nodo-pasarela:8080" }
+            - { name: TAQ_DB_URL, value: "jdbc:postgresql://postgres:5432/taq" }
+            - { name: TAQ_DETECCION, value: "on" }
+            - { name: TAQ_DETECCION_HILOS, value: "4" }
+          readinessProbe: { httpGet: { path: /actuator/health, port: http }, initialDelaySeconds: 15, periodSeconds: 3 }
+          resources: { requests: { cpu: 500m, memory: 384Mi }, limits: { cpu: "2", memory: 640Mi } }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: deteccion, namespace: taq, labels: { app: deteccion } }
+spec: { selector: { app: deteccion }, ports: [{ name: http, port: 8080, targetPort: http }] }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: respuesta, namespace: taq }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: respuesta } }
+  template:
+    metadata:
+      labels: { app: respuesta, taq-metricas: "true" }
+    spec:
+      nodeSelector: { rol: sistema, kubernetes.io/arch: arm64 }
+      terminationGracePeriodSeconds: 20
+      containers:
+        - name: respuesta
+          image: 767397902469.dkr.ecr.us-east-1.amazonaws.com/taq-plataforma:1.1
+          imagePullPolicy: IfNotPresent
+          ports: [{ name: http, containerPort: 8080 }]
+          env:
+            - { name: TAQ_ROLE, value: "respuesta" }
+            - { name: JAVA_OPTS, value: "-Xmx256m -XX:+UseG1GC" }
+            - { name: TAQ_REDIS_URL, value: "redis://redis:6379" }
+            - { name: TAQ_BLOQUEO_URL, value: "http://bd-bloqueo:8080" }
+            - { name: TAQ_RESERVA_URL, value: "http://nodo-reserva:8080" }
+            - { name: TAQ_PASARELA_URL, value: "http://nodo-pasarela:8080" }
+            - { name: TAQ_DB_URL, value: "jdbc:postgresql://postgres:5432/taq" }
+            - { name: TAQ_DETECCION, value: "on" }
+            - { name: TAQ_RESPUESTA_HILOS, value: "4" }
+          readinessProbe: { httpGet: { path: /actuator/health, port: http }, initialDelaySeconds: 15, periodSeconds: 3 }
+          resources: { requests: { cpu: 250m, memory: 384Mi }, limits: { cpu: "1", memory: 512Mi } }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: respuesta, namespace: taq, labels: { app: respuesta } }
+spec: { selector: { app: respuesta }, ports: [{ name: http, port: 8080, targetPort: http }] }

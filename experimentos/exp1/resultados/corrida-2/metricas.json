@@ -1,0 +1,119 @@
+{
+  "semilla": 2,
+  "ventana_s": 720,
+  "desfase_reloj_prometheus_s": 0.002560138702392578,
+  "gateway_ok": {
+    "n": 5630.066405222908,
+    "p50_ms": 2.596600408694037,
+    "p95_ms": 4.933540776518669,
+    "p99_ms": 9.395664739884372,
+    "fraccion_le_150ms": 1.0
+  },
+  "gateway_todas": {
+    "n": 8296.568970243523,
+    "p50_ms": 2.6202137132680314,
+    "p95_ms": 4.978406055209259,
+    "p99_ms": 9.910465116279049,
+    "fraccion_le_150ms": 1.0
+  },
+  "rechazos_cola_llena": 0.0,
+  "reservar_por_resultado": {
+    "NO_DISPONIBLE": 2666.5025650206153,
+    "OK": 5630.066405222908
+  },
+  "cliente_ok": {
+    "n": 5625,
+    "p50_ms": 3,
+    "p95_ms": 8.0,
+    "p99_ms": 14.0,
+    "fraccion_le_150ms": 1.0
+  },
+  "cliente_todas": {
+    "n": 8281,
+    "p50_ms": 4,
+    "p95_ms": 9,
+    "p99_ms": 16.0,
+    "fraccion_le_150ms": 1.0
+  },
+  "diferencia_p95_cliente_menos_gateway_ms": 3.0664592234813313,
+  "generador": {
+    "retraso_prom_ms": 0.4354661216789813,
+    "retraso_p95_ms": 2.0,
+    "retraso_p99_ms": 4.0,
+    "retraso_max_ms": 43
+  },
+  "diferencia_conteo_gateway_cliente": 0.0018765552723496424,
+  "ejecucion_valida": true,
+  "tasa_real_reservar_por_min": 691.3807475202935,
+  "prometheus": {
+    "cpu_pct": {
+      "bloqueo": {
+        "prom": 3.076631086637216,
+        "max": 13.076923076923078
+      },
+      "gateway": {
+        "prom": 1.144513058499892,
+        "max": 2.142857142857143
+      },
+      "pasarela": {
+        "prom": 1.3877754247899887,
+        "max": 4.074074074074074
+      },
+      "reserva": {
+        "prom": 1.4181617599400425,
+        "max": 2.5
+      }
+    },
+    "heap_mb": {
+      "bloqueo": {
+        "prom": 38.0143191019694,
+        "max": 56.1005859375
+      },
+      "gateway": {
+        "prom": 76.24075322681003,
+        "max": 114.9989242553711
+      },
+      "pasarela": {
+        "prom": 43.88143459955851,
+        "max": 58.07769012451172
+      },
+      "reserva": {
+        "prom": 73.00358057022095,
+        "max": 106.11589813232422
+      }
+    },
+    "cola_solicitud": {
+      "prom": 0.0,
+      "max": 0.0
+    },
+    "cola_operacion": {
+      "prom": 0.0,
+      "max": 0.0
+    },
+    "cola_persistencia": {
+      "prom": 0.0,
+      "max": 0.0
+    },
+    "hilo_unico_pct": {
+      "prom": 0.022709114486961415,
+      "max": 0.04137789953607422
+    },
+    "ops_hilo_unico": {
+      "prom": 16.074146339742292,
+      "max": 19.876024795040994
+    },
+    "bloqueos_activos": {
+      "prom": 1146.263888888889,
+      "max": 1959.0
+    },
+    "cache": {
+      "hit": 5846.585044517357,
+      "miss": 4.02796076094892,
+      "tasa_hit": 0.9993115318416523
+    },
+    "ops_bd_bloqueo_ventana": {
+      "bloquear": 8292.575814579279,
+      "vender": 3387.5197377346317
+    }
+  }
+}
