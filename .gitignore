@@ -36,3 +36,7 @@ results/raw/
 .env
 *.kubeconfig
 kubeconfig
+
+# Experimentos
+experimentos/.venv/
+experimentos/plataforma/target/
