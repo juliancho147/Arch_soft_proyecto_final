@@ -71,6 +71,22 @@ M["cliente"] = {"p95_pico_ms": lat[int(.95 * (len(lat) - 1))] if lat else None, 
                 "retraso_generador_p95_ms": retr[int(.95 * (len(retr) - 1))] if retr else None}
 M["valida"] = bool(M["cliente"]["retraso_generador_p95_ms"] is not None and M["cliente"]["retraso_generador_p95_ms"] <= 100)
 M["asr_e1_cumple"] = (M["p95_pico_completo_ms"] is not None and M["p95_pico_completo_ms"] < 250 and M["rechazos_cola_llena_total"] == 0)
+
+# Fases opcionales (variable FASES="nombre:ini_s:fin_s,..."): p95, tasa y réplicas máximas por fase. Si existe "pico8k", E-1 se evalúa sobre esa fase.
+import os
+if os.environ.get("FASES"):
+    M["fases"] = {}
+    for tramo in os.environ["FASES"].split(","):
+        nombre, ini, fin = tramo.split(":"); a, b = t0 + float(ini), t0 + float(fin)
+        tot_f = q(f"sum(increase(taq_reservar_seconds_count[{int(b-a)}s]))", b)
+        err_f = q(f'sum(increase(taq_reservar_seconds_count{{resultado!~"OK|NO_DISPONIBLE"}}[{int(b-a)}s]))', b)
+        M["fases"][nombre] = {"desde_s": float(ini), "hasta_s": float(fin), "p95_ms": p95(a, b),
+            "pct_bajo_200ms": frac_bajo(a, b, "0.2"), "pct_bajo_300ms": frac_bajo(a, b, "0.3"),
+            "solicitudes_por_min": (tot_f[0][1] / ((b - a) / 60)) if tot_f else None, "errores_tecnicos": err_f[0][1] if err_f else 0,
+            "replicas_max": {d: max([v for t, v in sr if a <= t <= b] or [0]) for d, sr in rep.items()}}
+    if "pico8k" in M["fases"]:
+        f8 = M["fases"]["pico8k"]
+        M["asr_e1_cumple"] = bool(f8["p95_ms"] is not None and f8["p95_ms"] < 250 and f8["errores_tecnicos"] == 0 and M["rechazos_cola_llena_total"] == 0)
 (carp / "metricas.json").write_text(json.dumps(M, indent=2))
 (carp / "prometheus").mkdir(exist_ok=True)
 for nombre, expr in {"p95": "histogram_quantile(0.95, sum(rate(taq_reservar_seconds_bucket[30s])) by (le))",
@@ -93,5 +109,9 @@ L = [f"# EXP-2 — métricas de la ejecución", "",
      f"| Atraso del generador (p95) | {M['cliente']['retraso_generador_p95_ms']} ms → ejecución {'válida' if M['valida'] else 'NO válida'} |", "",
      "## Réplicas por pod", "", "| Pod | Máximo | Final | Último cambio |", "|---|---|---|---|"]
 for d, v in sorted(M["replicas"].items()): L.append(f"| {d} | {v['maximo']} | {v['final']} | {v['ultimo_cambio_s']} s |")
+if M.get("fases"):
+    L += ["", "## Por fase", "", "| Fase | Solicitudes/min | p95 | ≤200 ms | ≤300 ms | Errores | Réplicas máx. |", "|---|---|---|---|---|---|---|"]
+    for n_, f_ in M["fases"].items():
+        L.append(f"| {n_} ({f_['desde_s']:.0f}–{f_['hasta_s']:.0f} s) | {f1(f_['solicitudes_por_min'])} | {f1(f_['p95_ms'])} ms | {f1(f_['pct_bajo_200ms'])} % | {f1(f_['pct_bajo_300ms'])} % | {f_['errores_tecnicos']:.0f} | " + ", ".join(f"{d.replace('nodo-','')} {v}" for d, v in sorted(f_['replicas_max'].items())) + " |")
 (carp / "metricas.md").write_text("\n".join(L) + "\n")
 print("métricas escritas en", carp)

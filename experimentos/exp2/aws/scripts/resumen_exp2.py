@@ -19,6 +19,10 @@ if V:
     L.append(f"| **D-3** (0 dobles reservas, todo o nada) | {'✅ cumple' if d3 else '❌ no cumple'} | dobles {V['asientos_con_mas_de_una_reserva_auditoria']} · parciales {V['bloqueos_parciales']} · conflictos con resultado esperado {V['conflictos_con_resultado_esperado']}/{V['conflictos_total']} · 4 min rechazadas {V['revisiones_4min_rechazadas']}/{V['revisiones_4min_total']} · 8 min exitosas {V['revisiones_8min_exitosas']}/{V['revisiones_8min_total']} |")
 else:
     L.append("| **D-3** | sin verificación | no se pudo leer `verificacion.json` |")
+if M.get("fases"):
+    L += ["", "**Por fase**", "", "| Fase | Solicitudes/min | p95 | Errores | Réplicas máx. |", "|---|---|---|---|---|"]
+    for n_, f_ in M["fases"].items():
+        L.append(f"| {n_} | {f(f_['solicitudes_por_min'])} | {f(f_['p95_ms'])} ms | {f_['errores_tecnicos']:.0f} | " + ", ".join(f"{d.replace('nodo-','')} {v}" for d, v in sorted(f_['replicas_max'].items())) + " |")
 L += ["", "Detalle: [metricas.md](metricas.md) · [verificacion.md](verificacion.md) · `bitacora.csv` · `prometheus/*.json` · `tablero-grafana.json`."]
 (c / "resumen.md").write_text("\n".join(L) + "\n")
 print("\n".join(L))

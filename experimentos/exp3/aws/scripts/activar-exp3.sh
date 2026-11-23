@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 # Prepara EXP-3 en el clúster: genera los manifiestos, aplica el tablero y los pods nuevos, y enciende TAQ_DETECCION=on en
-# nodo-entrada y bd-bloqueo (imagen 1.1). Para volver a EXP-1/EXP-2:  activar-exp3.sh volver
+# nodo-entrada y bd-bloqueo (imagen taq-plataforma:$TAG, 1.3 por defecto). Para volver a EXP-1/EXP-2:  activar-exp3.sh volver
 set -euo pipefail
+# ÚNICO punto de cambio de la etiqueta de la imagen: TAG=1.3 ./activar-exp3.sh (debe haberse publicado con publicar-imagen.sh)
+export TAG=${TAG:-1.3}
 source "$(dirname "$0")/../../../exp2/aws/scripts/00-config.sh"
 EXP3="$(cd "$(dirname "$0")/.." && pwd)"
 if [ "${1:-}" = "volver" ]; then

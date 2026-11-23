@@ -14,6 +14,10 @@ String perfil  = props.getProperty('perfil') ?: 'constante'
 int  rampaS    = (props.getProperty('rampa_s') ?: '120') as int
 int  tasaPico  = (props.getProperty('tasa_pico') ?: '8000') as int
 // Si es true, las solicitudes de los conflictos cuentan dentro de la tasa objetivo (el total de reservas/min se mantiene en tasa_pico).
+// Perfil por tramos (EXP-2 variante): "seg:tasa,seg:tasa,..." con interpolación lineal; después del último punto se mantiene la última tasa.
+String perfilPuntos = props.getProperty('perfil_puntos') ?: ''
+int asientosFrescos = (props.getProperty('asientos_frescos') ?: '100000') as int
+int baseConflicto   = (props.getProperty('base_conflicto') ?: '100001') as int
 boolean descuentaConf = (props.getProperty('descuenta_conflictos') ?: 'false') == 'true'
 // EXP-3 (ataques de reventa). Sin estas propiedades el calendario y la bitácora son exactamente los de EXP-1/EXP-2.
 int  ataquesNormal = (props.getProperty('ataques_normal') ?: '0') as int     // ataques al azar en la fase de tráfico normal
@@ -22,6 +26,17 @@ int  botsPorAtaque = (props.getProperty('bots_por_ataque') ?: '100') as int  // 
 int  solBotMin     = (props.getProperty('solicitudes_bot_por_min') ?: '10') as int
 int  duracionMaxAtaqueS = (props.getProperty('duracion_max_ataque_s') ?: '60') as int   // tope de cada bot si nadie lo revoca
 int  ataqueDesdeS  = (props.getProperty('ataque_normal_desde_s') ?: '0') as int         // los ataques "normales" empiezan tras este calentamiento previo
+// Tipos de ataque (por defecto solo bot_individual: el ataque de siempre). Se reparten por turnos, por fase, de forma determinista.
+//   bot_individual : cada bot = 1 IP + 1 cuenta, solicitudes_bot_por_min de 1 asiento           -> regla cuenta_frecuencia
+//   granja_cuentas : cuentas_por_granja cuentas detrás de UNA IP, solicitudes_granja_por_cuenta_min cada una (por debajo del umbral por cuenta) -> regla ip_*
+//   acaparador     : cuentas_acaparadoras cuentas (una IP cada una) con grupos de asientos_por_solicitud_acaparador asientos a solicitudes_acaparador_por_min -> regla cuenta_asientos
+def tiposAtaque = (props.getProperty('tipos_ataque') ?: 'bot_individual').split(',').collect { it.trim() }.findAll { it }
+tiposAtaque.each { if (!(it in ['bot_individual', 'granja_cuentas', 'acaparador'])) throw new IllegalArgumentException("tipos_ataque: tipo desconocido '${it}'") }
+int  cuentasGranja = (props.getProperty('cuentas_por_granja') ?: '100') as int
+int  solGranjaMin  = (props.getProperty('solicitudes_granja_por_cuenta_min') ?: '3') as int
+int  cuentasAcap   = (props.getProperty('cuentas_acaparadoras') ?: '20') as int
+int  solAcapMin    = (props.getProperty('solicitudes_acaparador_por_min') ?: '5') as int
+int  asientosAcap  = (props.getProperty('asientos_por_solicitud_acaparador') ?: '4') as int
 boolean hayAtaques = ataquesNormal + ataquesPico > 0
 boolean ipSim = hayAtaques || (props.getProperty('ip_simuladas') ?: 'false') == 'true'  // X-Forwarded-For: una IP por comprador legítimo
 String host    = props.getProperty('host') ?: 'localhost:30080'
@@ -37,12 +52,21 @@ def idSolic = new java.util.concurrent.atomic.AtomicLong()
 def idComp  = new java.util.concurrent.atomic.AtomicLong()
 
 // Asientos "frescos" para llegadas normales: permutación con semilla de 1..100000
-def frescos = (1..100000).toList(); Collections.shuffle(frescos, rnd)
+def frescos = (1..asientosFrescos).toList(); Collections.shuffle(frescos, rnd)
 int cursorFresco = 0
-int cursorConflicto = 100001      // bloques de 6 asientos consecutivos para los conflictos
+int cursorConflicto = baseConflicto      // bloques de 6 asientos consecutivos para los conflictos
 
 double factorConf = descuentaConf ? (1.0 + pConf * 7.5) : 1.0     // solicitudes promedio por llegada (5..10 por conflicto)
+def puntos = perfilPuntos ? perfilPuntos.split(',').collect { p -> def x = p.split(':'); [x[0] as double, x[1] as double] } : []
 def tasaEn = { double tMs ->
+    if (puntos) {
+        double ts = tMs / 1000.0
+        if (ts <= puntos[0][0]) return puntos[0][1]
+        for (int i = 1; i < puntos.size(); i++) {
+            if (ts <= puntos[i][0]) return puntos[i-1][1] + (puntos[i][1] - puntos[i-1][1]) * (ts - puntos[i-1][0]) / (puntos[i][0] - puntos[i-1][0])
+        }
+        return puntos[-1][1]
+    }
     if (perfil != 'rampa' || tMs < calentS * 1000.0) return (double) tasaMin
     double x = (tMs - calentS * 1000.0) / (rampaS * 1000.0)
     return x >= 1.0 ? (double) tasaPico : tasaMin + (tasaPico - tasaMin) * x
@@ -85,6 +109,7 @@ while (true) {
 // ---- EXP-3: ataques de reventa en instantes aleatorios (con su propia semilla: el tráfico legítimo no cambia)
 def ataquesInfo = []
 int botSolicitudesMax = 0
+def porTipoInfo = [:]
 if (hayAtaques) {
     def rndA = new Random(semilla * 31 + 17)
     double ventNormalIni = ataqueDesdeS * 1000.0
@@ -97,33 +122,52 @@ if (hayAtaques) {
     if (ataquesPico > 0 && ventPicoFin > ventPicoIni) ataquesPico.times { instantes << [(ventPicoIni + rndA.nextDouble() * (ventPicoFin - ventPicoIni)) as long, 'pico'] }
     else if (ataquesPico > 0) log.warn('EXP-3: no hay ventana de pico para los ataques (use perfil=rampa)')
     instantes.sort { it[0] }
-    // Asientos propios de los bots: los frescos que el tráfico normal no usó y los que no tomaron los conflictos (sin reutilizar ninguno).
+    // Reparto de tipos por turnos y por fase (normal / pico), con un desfase inicial que depende de la semilla (no altera rndA).
+    def rndT = new Random(semilla * 131 + 7)
+    def turno = [normal: tiposAtaque.size() > 1 ? rndT.nextInt(tiposAtaque.size()) : 0, pico: tiposAtaque.size() > 1 ? rndT.nextInt(tiposAtaque.size()) : 0]
+    def tipoDe = instantes.collect { par -> def tp = tiposAtaque[turno[par[1]] % tiposAtaque.size()]; turno[par[1]] = turno[par[1]] + 1; tp }
+    // Parámetros por tipo: cuentas por ataque, solicitudes por minuto y por cuenta, asientos por solicitud.
+    def cfg = [bot_individual: [cuentas: botsPorAtaque,  tasa: solBotMin,   asientos: 1],
+               granja_cuentas: [cuentas: cuentasGranja,  tasa: solGranjaMin, asientos: 1],
+               acaparador:     [cuentas: cuentasAcap,    tasa: solAcapMin,  asientos: asientosAcap]]
+    // Asientos propios de los atacantes: los frescos que el tráfico normal no usó y los que no tomaron los conflictos (sin reutilizar ninguno,
+    // ni entre ataques ni con el tráfico legítimo: repetirlos haría creer al verificador D-3 que hay doble reserva).
     def pool = new ArrayList<Integer>(frescos.subList(cursorFresco, frescos.size()))
     if (cursorConflicto <= 130000) pool.addAll((cursorConflicto..130000).toList())
     Collections.shuffle(pool, rndA)
-    int totalBots = instantes.size() * botsPorAtaque
-    int periodoMs = (60000 / Math.max(1, solBotMin)) as int
-    botSolicitudesMax = Math.max(1, Math.min((int) Math.ceil(solBotMin * duracionMaxAtaqueS / 60.0), totalBots > 0 ? (int) (pool.size() / totalBots) : 1))
-    if (botSolicitudesMax < Math.ceil(solBotMin * duracionMaxAtaqueS / 60.0))
-        log.warn("EXP-3: los asientos libres alcanzan solo para ${botSolicitudesMax} solicitudes por bot (se pedían ${Math.ceil(solBotMin * duracionMaxAtaqueS / 60.0)})")
+    // Solicitudes máximas por cuenta (tope si nadie la revoca) y reducción proporcional si no alcanzan los asientos libres.
+    cfg.each { k, c -> c.solMax = Math.max(1, (int) Math.ceil(c.tasa * duracionMaxAtaqueS / 60.0)); c.periodoMs = (60000 / Math.max(1, c.tasa)) as int; c.nAtaques = tipoDe.count(k) }
+    long necesarios = cfg.values().sum { (long) it.nAtaques * it.cuentas * it.solMax * it.asientos } ?: 0L
+    if (necesarios > pool.size()) {
+        cfg.each { k, c -> c.solMax = Math.max(1, (int) ((long) c.solMax * pool.size() / necesarios)) }
+        log.warn("EXP-3: los asientos libres (${pool.size()}) no alcanzan para ${necesarios}; se reducen las solicitudes máximas por cuenta: " + cfg.collect { k, c -> "${k}=${c.solMax}" }.join(', '))
+    }
+    botSolicitudesMax = cfg.bot_individual.solMax
     int cursorPool = 0
     instantes.eachWithIndex { par, k ->
         int idx = k + 1
-        ataquesInfo << [id: 'A' + idx, fase: par[1], t_ms: par[0], inicio_epoch_ms: t0 + par[0], bots: botsPorAtaque]
-        for (int b = 1; b <= botsPorAtaque; b++) {
-            def seats = pool.subList(cursorPool, cursorPool + botSolicitudesMax).collect { it as int }
-            cursorPool += botSolicitudesMax
-            cola.add([t: par[0] + rndA.nextInt(periodoMs), tipo: 'ATAQUE_BOT', grupo: 'A' + idx, solicitud: 'S' + idSolic.incrementAndGet(),
-                      comprador: "bot-A${idx}-${b}".toString(), ip: "203.0.${idx % 256}.${b}".toString(), asientos: [seats[0]], botSeats: seats,
-                      n: 0, periodoMs: periodoMs, esperado: 'ATAQUE'])
+        String tipoAt = tipoDe[k]
+        def c = cfg[tipoAt]
+        ataquesInfo << [id: 'A' + idx, fase: par[1], t_ms: par[0], inicio_epoch_ms: t0 + par[0], bots: c.cuentas, tipo: tipoAt]
+        for (int b = 1; b <= c.cuentas; b++) {
+            // cada solicitud pide c.asientos asientos distintos, nunca vistos antes
+            def seats = (0..<c.solMax).collect { n -> def g = pool.subList(cursorPool, cursorPool + c.asientos).collect { it as int }; cursorPool += c.asientos; g }
+            // bot_individual: IP propia; granja_cuentas: UNA IP para todas las cuentas de la granja; acaparador: IP propia por cuenta
+            String ipAt = tipoAt == 'granja_cuentas' ? "198.51.${idx % 256}.${(idx.intdiv(256) % 254) + 1}".toString()
+                        : tipoAt == 'acaparador' ? "100.64.${idx % 256}.${b % 256}".toString()
+                        : "203.0.${idx % 256}.${b}".toString()
+            cola.add([t: par[0] + rndA.nextInt(c.periodoMs), tipo: 'ATAQUE_BOT', tipoAtaque: tipoAt, grupo: 'A' + idx, solicitud: 'S' + idSolic.incrementAndGet(),
+                      comprador: "bot-A${idx}-${b}".toString(), ip: ipAt, asientos: seats[0], botSeats: seats,
+                      n: 0, periodoMs: c.periodoMs, esperado: 'ATAQUE'])
         }
     }
-    log.info("EXP-3: ${ataquesInfo.size()} ataques x ${botsPorAtaque} bots, hasta ${botSolicitudesMax} solicitudes por bot, asientos libres=${pool.size()}")
+    log.info("EXP-3: ${ataquesInfo.size()} ataques (${tiposAtaque.collect { nm -> nm + '=' + tipoDe.count(nm) }.join(', ')}), asientos libres=${pool.size()}, solicitudes máx por cuenta: " + cfg.collect { k, c -> "${k}=${c.solMax}" }.join(', '))
+    porTipoInfo = cfg.findAll { k, c -> k in tiposAtaque }.collectEntries { k, c -> [(k): [cuentas_por_ataque: c.cuentas, solicitudes_por_cuenta_por_min: c.tasa, asientos_por_solicitud: c.asientos, solicitudes_max_por_cuenta: c.solMax]] }
 }
 
 def w = new BufferedWriter(new FileWriter(bitacora, false))
-// Con ataques se AGREGA al final la columna ip (los lectores existentes leen por posición o por nombre y no se alteran).
-w.writeLine('solicitud,tipo,grupo,comprador,asientos,t_inicio_ms,t_fin_ms,http,resultado,motivo,bloqueado_en,esperado,cola_s,retraso_ms' + (ipSim ? ',ip' : ''))
+// Con ataques se AGREGAN al final las columnas ip y tipo_ataque (tipo inyectado; vacío en el tráfico legítimo) (los lectores existentes leen por posición o por nombre y no se alteran).
+w.writeLine('solicitud,tipo,grupo,comprador,asientos,t_inicio_ms,t_fin_ms,http,resultado,motivo,bloqueado_en,esperado,cola_s,retraso_ms' + (ipSim ? ',ip' : '') + (hayAtaques ? ',tipo_ataque' : ''))
 w.flush()
 
 props.put('taq.cola', cola)
@@ -140,12 +184,13 @@ props.put('taq.http', java.net.http.HttpClient.newBuilder().version(java.net.htt
 props.put('taq.host', host)
 props.put('taq.rnd', new Random(semilla + 7919))
 props.put('taq.ipSim', ipSim)
+props.put('taq.hayAtaques', hayAtaques)
 
 new File(ejecJson).text = JsonOutput.prettyPrint(JsonOutput.toJson([
-    semilla: semilla, perfil: perfil, rampa_s: rampaS, tasa_pico_por_min: tasaPico, descuenta_conflictos: descuentaConf, tasa_por_min: tasaMin, calentamiento_s: calentS, trafico_s: traficoS,
+    semilla: semilla, perfil: perfil, perfil_puntos: perfilPuntos, asientos_frescos: asientosFrescos, base_conflicto: baseConflicto, rampa_s: rampaS, tasa_pico_por_min: tasaPico, descuenta_conflictos: descuentaConf, tasa_por_min: tasaMin, calentamiento_s: calentS, trafico_s: traficoS,
     inicio_epoch_ms: t0, fin_calentamiento_epoch_ms: t0 + calentS * 1000L,
     fin_trafico_epoch_ms: t0 + finTraficoMs, llegadas_normales: llegadas, conflictos: conflictos,
     p_conflicto: pConf, p_confirma: pConfirma] + (hayAtaques ? [exp3: [ataque_normal_desde_s: ataqueDesdeS, ataques_normal: ataquesNormal, ataques_pico: ataquesPico,
     bots_por_ataque: botsPorAtaque, solicitudes_bot_por_min: solBotMin, duracion_max_ataque_s: duracionMaxAtaqueS,
-    solicitudes_max_por_bot: botSolicitudesMax, ataques: ataquesInfo]] : [:])))
+    solicitudes_max_por_bot: botSolicitudesMax, tipos_ataque: tiposAtaque, por_tipo: porTipoInfo, ataques: ataquesInfo]] : [:])))
 log.info("EXP-1 calendario listo: ${llegadas} llegadas, ${conflictos} conflictos, eventos=${cola.size()}")

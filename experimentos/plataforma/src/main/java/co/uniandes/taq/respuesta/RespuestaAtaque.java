@@ -18,6 +18,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,6 +41,8 @@ import org.springframework.stereotype.Component;
 public class RespuestaAtaque {
     private static final Logger log = LoggerFactory.getLogger(RespuestaAtaque.class);
     public static final String COLA_ALERTA = "cola_alerta_ataque", REVOCADAS = "cuentas_revocadas";
+    private static final Object POP = new Object();
+    private static final int LOTE_MAX = 200;   // alertas que se recuperan en un solo lote
 
     private final MeterRegistry registro;
     private final RedisClient cliente;
@@ -48,7 +51,8 @@ public class RespuestaAtaque {
         .connectTimeout(Duration.ofSeconds(2)).build();
     private final String bloqueoUrl, dbUrl, dbUser, dbPass;
     private final int hilos;
-    private final Timer recuperacion, etapaEspera, etapaRevocacion, etapaLiberacion, etapaCancelacion;
+    private final Map<String, Timer> recuperacionPorTipo = new java.util.HashMap<>();
+    private final Timer etapaEspera, etapaRevocacion, etapaLiberacion, etapaCancelacion;
     private final Counter liberados, canceladas, revocadas, errores;
 
     public RespuestaAtaque(MeterRegistry registro,
@@ -59,7 +63,9 @@ public class RespuestaAtaque {
         this.cliente = RedisClient.create(redisUrl);
         this.conexionGauge = cliente.connect();
         this.bloqueoUrl = bloqueoUrl; this.dbUrl = dbUrl; this.dbUser = dbUser; this.dbPass = dbPass; this.hilos = hilos;
-        this.recuperacion = Metricas.timerFino(registro, "taq_recuperacion_seconds");
+        // Un timer por tipo de ataque (etiqueta "tipo"; solo 3 valores + desconocido).
+        for (String t : new String[] {"bot_individual", "granja_cuentas", "acaparador", "sin_etiqueta"})
+            recuperacionPorTipo.put(t, Metricas.timerFino(registro, "taq_recuperacion_seconds", "tipo", t));
         this.etapaEspera = Metricas.timerFino(registro, "taq_recuperacion_etapa_seconds", "etapa", "espera_alerta");
         this.etapaRevocacion = Metricas.timerFino(registro, "taq_recuperacion_etapa_seconds", "etapa", "revocacion_redis");
         this.etapaLiberacion = Metricas.timerFino(registro, "taq_recuperacion_etapa_seconds", "etapa", "liberacion_asientos");
@@ -96,16 +102,23 @@ public class RespuestaAtaque {
             redis = cliente.connect();
             calentar();
             while (true) {
-                String crudo = null;
+                List<String> lote = null;
                 try {
-                    KeyValue<String, String> kv = redis.sync().brpop(1, COLA_ALERTA);
-                    if (kv == null || !kv.hasValue()) continue;
-                    crudo = kv.getValue();
-                    procesar(crudo);
+                    // Un solo hilo a la vez espera y drena: la ráfaga de una granja (un LPUSH de N alertas) cae entera en UN lote
+                    // y no se reparte entre hilos que luego harían cola en el hilo único de bd_bloqueo.
+                    synchronized (POP) {
+                        KeyValue<String, String> kv = redis.sync().brpop(1, COLA_ALERTA);
+                        if (kv == null || !kv.hasValue()) continue;
+                        lote = new ArrayList<>();
+                        lote.add(kv.getValue());
+                        drenar(lote);          // v2: ráfaga de alertas (p. ej. toda una granja) -> un solo lote
+                    }
+                    procesarLote(lote);
+                    lote = null;
                 } catch (Exception e) {
                     errores.increment();
                     log.warn("Error en la respuesta al ataque: {}", e.toString());
-                    reencolar(crudo);
+                    if (lote != null) for (String a : lote) reencolar(a);
                     try { if (db != null) db.close(); } catch (Exception ignorada) {}
                     db = null;
                     try { Thread.sleep(100); } catch (InterruptedException ie) { return; }
@@ -140,55 +153,85 @@ public class RespuestaAtaque {
             } catch (Exception e) { log.error("No se pudo reencolar la alerta: {}", e.toString()); }
         }
 
+        /** Saca de la cola, sin esperar, hasta LOTE_MAX-1 alertas más (RPOP con cuenta; si el Redis no lo soporta, se procesa de a una). */
+        private void drenar(List<String> lote) {
+            try {
+                List<String> mas = redis.sync().rpop(COLA_ALERTA, LOTE_MAX - 1);
+                if (mas != null) lote.addAll(mas);
+            } catch (Exception e) { log.debug("No se pudo drenar la cola de alertas por lote: {}", e.toString()); }
+        }
+
+        /** Multifila en tandas: INSERT INTO t(cols) VALUES (?,..),(?,..) [sufijo]. */
+        private void insertarFilas(String cabecera, int columnas, String sufijo, List<Object[]> filas) throws Exception {
+            final int tanda = 400;
+            String grupo = "(" + "?,".repeat(columnas - 1) + "?)";
+            for (int i = 0; i < filas.size(); i += tanda) {
+                List<Object[]> parte = filas.subList(i, Math.min(filas.size(), i + tanda));
+                StringBuilder sql = new StringBuilder(cabecera).append(" VALUES ");
+                for (int j = 0; j < parte.size(); j++) sql.append(j == 0 ? "" : ",").append(grupo);
+                sql.append(sufijo);
+                try (PreparedStatement ps = db.prepareStatement(sql.toString())) {
+                    int k = 1;
+                    for (Object[] f : parte) for (Object v : f) ps.setObject(k++, v);
+                    ps.executeUpdate();
+                }
+            }
+        }
+
+        /**
+         * v2: recupera un LOTE de alertas. Por cuenta, el tiempo de S-2 sigue yendo desde SU alerta hasta que sus asientos están liberados,
+         * sus órdenes canceladas y la cuenta revocada; pero las tres cosas se hacen en bloque: un SADD múltiple, UNA operación del hilo
+         * único de bd_bloqueo y una transacción de Postgres con inserciones multifila. La evidencia posterior va después (fuera del tiempo).
+         */
         @SuppressWarnings("unchecked")
-        private void procesar(String crudo) throws Exception {
+        private void procesarLote(List<String> crudos) throws Exception {
             long popMs = System.currentTimeMillis();
-            Map<String, Object> alerta = Json.mapa(crudo);
-            String cuenta = (String) alerta.get("cuenta"), alertaId = (String) alerta.get("id");
-            long tsAlerta = ((Number) alerta.get("ts_alerta_ms")).longValue();
-            etapaEspera.record(Math.max(0, popMs - tsAlerta), TimeUnit.MILLISECONDS);
+            int n = crudos.size();
+            List<Map<String, Object>> alertas = new ArrayList<>(n);
+            for (String c : crudos) alertas.add(Json.mapa(c));
+            String[] cuentas = new String[n], tipos = new String[n], ids = new String[n];
+            long[] tsAlerta = new long[n];
+            for (int i = 0; i < n; i++) {
+                Map<String, Object> a = alertas.get(i);
+                cuentas[i] = (String) a.get("cuenta"); ids[i] = (String) a.get("id");
+                tsAlerta[i] = ((Number) a.get("ts_alerta_ms")).longValue();
+                String t = String.valueOf(a.getOrDefault("tipo_atacante", "sin_etiqueta"));
+                tipos[i] = recuperacionPorTipo.containsKey(t) ? t : "sin_etiqueta";
+                etapaEspera.record(Math.max(0, popMs - tsAlerta[i]), TimeUnit.MILLISECONDS);
+            }
 
-            // (a) componente_revocacion_acceso: primero en memoria (Redis); el gateway la lee en ≤ ~1 s y bd_bloqueo la rechaza al instante.
+            // (a) componente_revocacion_acceso: un solo SADD con todas las cuentas.
             long t1 = System.nanoTime();
-            redis.sync().sadd(REVOCADAS, cuenta);
+            redis.sync().sadd(REVOCADAS, cuentas);
             long nsRevocacion = System.nanoTime() - t1;
-            etapaRevocacion.record(nsRevocacion, TimeUnit.NANOSECONDS);
 
-            // (b) componente_restauracion_estado: liberación en bloque por el índice comprador -> asientos de bd_bloqueo.
+            // (b) componente_restauracion_estado: UNA operación del hilo único libera a todos los compradores del lote.
             long t2 = System.nanoTime();
-            HttpResponse<String> r = http.send(HttpRequest.newBuilder(URI.create(bloqueoUrl + "/bloqueo/liberar-comprador"))
+            HttpResponse<String> r = http.send(HttpRequest.newBuilder(URI.create(bloqueoUrl + "/bloqueo/liberar-compradores"))
                 .timeout(Duration.ofSeconds(10)).header("Content-Type", "application/json")
-                .POST(HttpRequest.BodyPublishers.ofString(Json.a(Map.of("comprador", cuenta, "revocar", true, "alertaId", alertaId)))).build(),
+                .POST(HttpRequest.BodyPublishers.ofString(Json.a(Map.of("compradores", List.of(cuentas), "revocar", true)))).build(),
                 HttpResponse.BodyHandlers.ofString());
             if (r.statusCode() != 200) throw new IllegalStateException("bd_bloqueo respondió " + r.statusCode());
             Map<String, Object> lib = Json.mapa(r.body());
             long nsLiberacion = System.nanoTime() - t2;
-            etapaLiberacion.record(nsLiberacion, TimeUnit.NANOSECONDS);
-            List<Number> asientos = (List<Number>) lib.getOrDefault("asientos", List.of());
-            List<Map<String, Object>> ordenes = (List<Map<String, Object>>) lib.getOrDefault("ordenes", List.of());
+            List<Map<String, Object>> resultados = (List<Map<String, Object>>) lib.get("resultados");
+            if (resultados == null || resultados.size() != n) throw new IllegalStateException("bd_bloqueo devolvió un lote incompleto");
 
-            // (c) órdenes canceladas y cuenta revocada, de forma duradera, en una sola transacción.
+            // (c) órdenes canceladas y cuentas revocadas, de forma duradera, en una sola transacción con inserciones multifila.
             long t3 = System.nanoTime();
             long ahora = System.currentTimeMillis();
             if (db == null || db.isClosed()) db = DriverManager.getConnection(dbUrl, dbUser, dbPass);
+            List<Object[]> filasCuenta = new ArrayList<>(n), filasOrden = new ArrayList<>();
+            for (int i = 0; i < n; i++) {
+                filasCuenta.add(new Object[] {cuentas[i], ahora, String.valueOf(alertas.get(i).get("regla")), ids[i]});
+                for (Map<String, Object> o : (List<Map<String, Object>>) resultados.get(i).getOrDefault("ordenes", List.of()))
+                    filasOrden.add(new Object[] {o.get("solicitudId"), cuentas[i], String.valueOf(o.get("asientos")), ahora, "ATAQUE_REVENTA"});
+            }
             db.setAutoCommit(false);
             try {
-                try (PreparedStatement ps = db.prepareStatement(
-                    "INSERT INTO cuenta_revocada(cuenta, ts_ms, motivo, alerta_id) VALUES (?,?,?,?) ON CONFLICT (cuenta) DO NOTHING")) {
-                    ps.setString(1, cuenta); ps.setLong(2, ahora); ps.setString(3, String.valueOf(alerta.get("regla"))); ps.setString(4, alertaId);
-                    ps.executeUpdate();
-                }
-                if (!ordenes.isEmpty()) {
-                    try (PreparedStatement ps = db.prepareStatement(
-                        "INSERT INTO orden_cancelada(solicitud_id, comprador, asientos, ts_ms, motivo) VALUES (?,?,?,?,?) ON CONFLICT (solicitud_id) DO NOTHING")) {
-                        for (Map<String, Object> o : ordenes) {
-                            ps.setString(1, (String) o.get("solicitudId")); ps.setString(2, cuenta);
-                            ps.setString(3, String.valueOf(o.get("asientos"))); ps.setLong(4, ahora); ps.setString(5, "ATAQUE_REVENTA");
-                            ps.addBatch();
-                        }
-                        ps.executeBatch();
-                    }
-                }
+                insertarFilas("INSERT INTO cuenta_revocada(cuenta, ts_ms, motivo, alerta_id)", 4, " ON CONFLICT (cuenta) DO NOTHING", filasCuenta);
+                if (!filasOrden.isEmpty())
+                    insertarFilas("INSERT INTO orden_cancelada(solicitud_id, comprador, asientos, ts_ms, motivo)", 5, " ON CONFLICT (solicitud_id) DO NOTHING", filasOrden);
                 db.commit();
             } catch (Exception e) {
                 try { db.rollback(); } catch (Exception ignorada) {}
@@ -197,29 +240,49 @@ public class RespuestaAtaque {
                 try { db.setAutoCommit(true); } catch (Exception ignorada) {}
             }
             long nsCancelacion = System.nanoTime() - t3;
-            etapaCancelacion.record(nsCancelacion, TimeUnit.NANOSECONDS);
 
             long finMs = System.currentTimeMillis();
-            recuperacion.record(Math.max(0, finMs - tsAlerta), TimeUnit.MILLISECONDS);
-            revocadas.increment(); liberados.increment(asientos.size()); canceladas.increment(ordenes.size());
-            log.info("RECUPERADO: cuenta={} asientos={} ordenes={} total={} ms (espera {} + {})", cuenta, asientos.size(), ordenes.size(),
-                finMs - tsAlerta, popMs - tsAlerta, String.format("revoc %.1f + lib %.1f + cancel %.1f ms",
-                    nsRevocacion / 1e6, nsLiberacion / 1e6, nsCancelacion / 1e6));
+            int totAsientos = 0, totOrdenes = 0;
+            for (int i = 0; i < n; i++) {
+                List<Number> as = (List<Number>) resultados.get(i).getOrDefault("asientos", List.of());
+                List<?> os = (List<?>) resultados.get(i).getOrDefault("ordenes", List.of());
+                totAsientos += as.size(); totOrdenes += os.size();
+                // por cuenta: desde SU alerta hasta que las tres cosas están hechas
+                recuperacionPorTipo.get(tipos[i]).record(Math.max(0, finMs - tsAlerta[i]), TimeUnit.MILLISECONDS);
+                etapaRevocacion.record(nsRevocacion, TimeUnit.NANOSECONDS);
+                etapaLiberacion.record(nsLiberacion, TimeUnit.NANOSECONDS);
+                etapaCancelacion.record(nsCancelacion, TimeUnit.NANOSECONDS);
+            }
+            revocadas.increment(n); liberados.increment(totAsientos); canceladas.increment(totOrdenes);
+            long maxDesdeAlerta = 0; for (int i = 0; i < n; i++) maxDesdeAlerta = Math.max(maxDesdeAlerta, finMs - tsAlerta[i]);
+            log.info("RECUPERADO lote de {} cuentas: asientos={} ordenes={} max desde alerta={} ms (espera + revoc {} + lib {} + cancel {} ms)", n, totAsientos, totOrdenes,
+                maxDesdeAlerta, String.format("%.1f", nsRevocacion / 1e6), String.format("%.1f", nsLiberacion / 1e6), String.format("%.1f", nsCancelacion / 1e6));
 
-            // Evidencia de la recuperación (después de contar el tiempo: limpieza definitiva asíncrona).
-            Map<String, Object> det = new LinkedHashMap<>();
-            det.put("alerta_id", alertaId); det.put("asientos_liberados", asientos); det.put("ordenes_canceladas", ordenes.size());
-            det.put("ms_total_desde_alerta", finMs - tsAlerta); det.put("ms_espera_alerta", popMs - tsAlerta);
-            det.put("ms_revocacion", nsRevocacion / 1e6); det.put("ms_liberacion", nsLiberacion / 1e6); det.put("ms_cancelacion", nsCancelacion / 1e6);
-            det.put("ms_operacion_bd_bloqueo", lib.get("operacion_ms"));
-            try (PreparedStatement ps = db.prepareStatement(
-                "INSERT INTO auditoria_seguridad(tipo, actor_cuenta, actor_ip, detalle, ts_evento_detector, ts_evidencia) VALUES (?,?,?,?::jsonb,?,?)")) {
-                for (String tipo : new String[] {"CUENTA_REVOCADA", "ASIENTOS_LIBERADOS", "ORDENES_CANCELADAS", "RECUPERACION_COMPLETA"}) {
-                    ps.setString(1, tipo); ps.setString(2, cuenta); ps.setString(3, String.valueOf(alerta.get("ip")));
-                    ps.setString(4, Json.a(det)); ps.setLong(5, tsAlerta); ps.setLong(6, System.currentTimeMillis());
-                    ps.addBatch();
+            // Evidencia de la recuperación (después de contar el tiempo: limpieza definitiva asíncrona), también en lote.
+            List<Object[]> evidencia = new ArrayList<>(n * 4);
+            long ahoraEv = System.currentTimeMillis();
+            for (int i = 0; i < n; i++) {
+                List<Number> as = (List<Number>) resultados.get(i).getOrDefault("asientos", List.of());
+                Map<String, Object> det = new LinkedHashMap<>();
+                det.put("alerta_id", ids[i]); det.put("tipo_atacante", tipos[i]); det.put("asientos_liberados", as);
+                det.put("ordenes_canceladas", ((List<?>) resultados.get(i).getOrDefault("ordenes", List.of())).size());
+                det.put("ms_total_desde_alerta", finMs - tsAlerta[i]); det.put("ms_espera_alerta", popMs - tsAlerta[i]);
+                det.put("ms_revocacion", nsRevocacion / 1e6); det.put("ms_liberacion", nsLiberacion / 1e6); det.put("ms_cancelacion", nsCancelacion / 1e6);
+                det.put("ms_operacion_bd_bloqueo", lib.get("operacion_ms")); det.put("lote", n);
+                String detalle = Json.a(det);
+                for (String tipo : new String[] {"CUENTA_REVOCADA", "ASIENTOS_LIBERADOS", "ORDENES_CANCELADAS", "RECUPERACION_COMPLETA"})
+                    evidencia.add(new Object[] {tipo, cuentas[i], String.valueOf(alertas.get(i).get("ip")), detalle, tsAlerta[i], ahoraEv, tipos[i]});
+            }
+            for (int i = 0; i < evidencia.size(); i += 400) {
+                // detalle es JSONB: se castea en la consulta
+                List<Object[]> parte = evidencia.subList(i, Math.min(evidencia.size(), i + 400));
+                StringBuilder sql = new StringBuilder("INSERT INTO auditoria_seguridad(tipo, actor_cuenta, actor_ip, detalle, ts_evento_detector, ts_evidencia, tipo_atacante) VALUES ");
+                for (int j = 0; j < parte.size(); j++) sql.append(j == 0 ? "" : ",").append("(?,?,?,?::jsonb,?,?,?)");
+                try (PreparedStatement ps = db.prepareStatement(sql.toString())) {
+                    int k = 1;
+                    for (Object[] f : parte) for (Object v : f) ps.setObject(k++, v);
+                    ps.executeUpdate();
                 }
-                ps.executeBatch();
             }
         }
     }

@@ -13,6 +13,8 @@ public final class EsquemaSeguridad {
             st.execute("CREATE TABLE IF NOT EXISTS auditoria_seguridad (id BIGSERIAL PRIMARY KEY, ts TIMESTAMPTZ NOT NULL DEFAULT now(), "
                 + "tipo TEXT NOT NULL, actor_cuenta TEXT, actor_ip TEXT, detalle JSONB, "
                 + "ts_evento_detector BIGINT, ts_evidencia BIGINT)");
+            // Etiqueta de tipo de atacante declarada por el generador (bot_individual, granja_cuentas, acaparador, sin_etiqueta): columna añadida sin romper tablas ya creadas.
+            st.execute("ALTER TABLE auditoria_seguridad ADD COLUMN IF NOT EXISTS tipo_atacante TEXT");
             st.execute("CREATE INDEX IF NOT EXISTS auditoria_seguridad_tipo ON auditoria_seguridad(tipo, id)");
             st.execute("CREATE TABLE IF NOT EXISTS cuenta_revocada (cuenta TEXT PRIMARY KEY, ts_ms BIGINT NOT NULL, motivo TEXT, alerta_id TEXT)");
             // Cancelación de órdenes: reserva_log es un registro de solo anexar (sin unicidad ni índice por comprador);

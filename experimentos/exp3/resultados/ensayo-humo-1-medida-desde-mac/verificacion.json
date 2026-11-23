@@ -1,0 +1,155 @@
+{
+ "carpeta": "/Users/julianbuiles/Library/CloudStorage/OneDrive-Personal/Documentos/UniAndes/Maestria Arquitectura/Materias/Arquitectura de Software/Reto 4/experimentos/exp3/resultados/corrida-0",
+ "limites_ms": {
+  "S1": 100.0,
+  "S2": 300.0
+ },
+ "ataques": 5,
+ "bots": 100,
+ "solicitudes_de_bots": 400,
+ "asientos_obtenidos_por_bots": 300,
+ "por_ataque": [
+  {
+   "id": "A1",
+   "fase": "normal",
+   "bots_que_enviaron": 20,
+   "bots_marcados": 20,
+   "detectado": true,
+   "completo": true
+  },
+  {
+   "id": "A2",
+   "fase": "normal",
+   "bots_que_enviaron": 20,
+   "bots_marcados": 20,
+   "detectado": true,
+   "completo": true
+  },
+  {
+   "id": "A3",
+   "fase": "normal",
+   "bots_que_enviaron": 20,
+   "bots_marcados": 20,
+   "detectado": true,
+   "completo": true
+  },
+  {
+   "id": "A4",
+   "fase": "pico",
+   "bots_que_enviaron": 20,
+   "bots_marcados": 20,
+   "detectado": true,
+   "completo": true
+  },
+  {
+   "id": "A5",
+   "fase": "pico",
+   "bots_que_enviaron": 20,
+   "bots_marcados": 20,
+   "detectado": true,
+   "completo": true
+  }
+ ],
+ "solicitudes_fraudulentas_antes_de_la_marca": {
+  "promedio": 3.0,
+  "p95": 3.0,
+  "max": 3
+ },
+ "compradores_legitimos_marcados": [],
+ "asientos_liberados_auditoria": 300,
+ "resumen_respuesta": {
+  "revocadas_redis": 100,
+  "marcadas_redis": 100,
+  "revocadas_postgres_bots": 100,
+  "revocadas_postgres_otras": 0,
+  "ordenes_canceladas_bots": 300,
+  "ordenes_canceladas_otras": 0,
+  "marcas_bots": 100,
+  "marcas_otras": 0
+ },
+ "asientos_de_bots_aun_bloqueados": 0,
+ "veredictos_por_fase": {
+  "normal": {
+   "S1_deteccion_p95_ms_prometheus": 4.33,
+   "S1_deteccion_p95_ms_auditoria": 1.1,
+   "S1_cumple": true,
+   "S2_recuperacion_p95_ms_medida_independiente": 609.2,
+   "S2_recuperacion_p95_ms_interna_auditoria": 14.15,
+   "S2_recuperacion_p95_ms_prometheus": 15.0,
+   "S2_cumple": false,
+   "n_detecciones_auditoria": 60,
+   "n_recuperaciones_medidas": 60
+  },
+  "pico": {
+   "S1_deteccion_p95_ms_prometheus": 3.0,
+   "S1_deteccion_p95_ms_auditoria": 1.05,
+   "S1_cumple": true,
+   "S2_recuperacion_p95_ms_medida_independiente": 520.75,
+   "S2_recuperacion_p95_ms_interna_auditoria": 14.05,
+   "S2_recuperacion_p95_ms_prometheus": 12.5,
+   "S2_cumple": false,
+   "n_detecciones_auditoria": 40,
+   "n_recuperaciones_medidas": 40
+  }
+ },
+ "prometheus": {
+  "normal": {
+   "deteccion_p95_ms": 4.33,
+   "detecciones": 60.12375,
+   "deteccion_pct_le_100ms": 100.0,
+   "recuperacion_p95_ms": 15.0,
+   "recuperaciones": 63.579,
+   "recuperacion_pct_le_300ms": 100.0,
+   "cola_evento_trafico_max": 0.0,
+   "cola_operacion_max": 0.0,
+   "cola_alerta_max": 0.0,
+   "eventos_descartados": 0.0,
+   "rechazos_cuenta_revocada": 15.89318181818182
+  },
+  "pico": {
+   "deteccion_p95_ms": 3.0,
+   "detecciones": 43.07692307692307,
+   "deteccion_pct_le_100ms": 100.0,
+   "recuperacion_p95_ms": 12.5,
+   "recuperaciones": 43.07692307692307,
+   "recuperacion_pct_le_300ms": 100.0,
+   "cola_evento_trafico_max": 0.0,
+   "cola_operacion_max": 0.0,
+   "cola_alerta_max": 0.0,
+   "eventos_descartados": 0.0,
+   "rechazos_cuenta_revocada": 43.875
+  },
+  "sospechosas_total": 100.0
+ },
+ "trafico_legitimo": {
+  "normal": {
+   "n_durante_recuperacion": 65,
+   "p95_durante_recuperacion_ms": 10.0,
+   "n_fuera": 345,
+   "p95_fuera_ms": 17.8
+  },
+  "pico": {
+   "n_durante_recuperacion": 398,
+   "p95_durante_recuperacion_ms": 8.0,
+   "n_fuera": 1037,
+   "p95_fuera_ms": 9.0
+  }
+ },
+ "legitimos_con_cuenta_revocada": 0,
+ "legitimos_con_error_tecnico": 0,
+ "recuperaciones_no_completadas_en_medicion": 0,
+ "hay_medida_independiente": true,
+ "criterios": {
+  "todos_los_ataques_detectados": true,
+  "todos_los_bots_marcados": true,
+  "compradores_legitimos_marcados_0": true,
+  "cuentas_legitimas_revocadas_0": true,
+  "asientos_de_bots_retenidos_al_final_0": true,
+  "asientos_liberados_igual_a_los_obtenidos": true,
+  "ordenes_canceladas_igual_a_los_obtenidos": true,
+  "cuentas_revocadas_igual_a_bots": true,
+  "S1_p95_dentro_del_limite": true,
+  "S2_p95_dentro_del_limite": false
+ },
+ "cumple_todo": false
+}

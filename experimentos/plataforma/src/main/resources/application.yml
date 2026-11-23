@@ -39,5 +39,5 @@ taq:
     ventana-s: ${TAQ_AF_VENTANA_S:30}
     umbral-cuenta: ${TAQ_AF_UMBRAL_CUENTA:3}
     umbral-ip: ${TAQ_AF_UMBRAL_IP:20}
-    umbral-asientos: ${TAQ_AF_UMBRAL_ASIENTOS:9}
+    umbral-asientos: ${TAQ_AF_UMBRAL_ASIENTOS:7}
   oraculo-prefijo-bot: ${TAQ_ORACULO_PREFIJO_BOT:bot-}   # solo instrumentación de EXP-3 (cuenta falsos positivos); vacío = apagado

@@ -29,6 +29,7 @@ canvas{width:100%;height:170px;display:block}
 <header><h1>Panel de control · EXP-1 reservas</h1><span id="est" class="estado off">detenido</span>
 <span style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
  <span><a id="g1" href="#" target="_blank">Grafana EXP-1 ↗</a> <button id="bv1" class="gris" style="flex:none;padding:4px 10px;font-size:12px" title="Abre el tablero de EXP-1 mostrando solo lo que ocurra desde ahora">↺ reiniciar vista</button> <small id="vd1" style="color:var(--sec)"></small></span>
+ <span><a id="g3" href="#" target="_blank">Grafana EXP-3 ↗</a> <button id="bv3" class="gris" style="flex:none;padding:4px 10px;font-size:12px" title="Abre el tablero de EXP-3 mostrando solo lo que ocurra desde ahora">↺ reiniciar vista</button> <small id="vd3" style="color:var(--sec)"></small></span>
  <span><a id="g2" href="#" target="_blank">Grafana EXP-2 ↗</a> <button id="bv2" class="gris" style="flex:none;padding:4px 10px;font-size:12px" title="Abre el tablero de EXP-2 mostrando solo lo que ocurra desde ahora">↺ reiniciar vista</button> <small id="vd2" style="color:var(--sec)"></small></span></span>
 </header>
 <main>
@@ -83,18 +84,41 @@ canvas{width:100%;height:170px;display:block}
  <section class="card c6"><h2>Resultado por inyección: aprobadas (verde) vs. no aprobadas (rojo)</h2><canvas id="g3"></canvas></section>
  <section class="card c6"><h2>p95 del cliente vs. límite del ASR (ms)</h2><canvas id="g1"></canvas></section>
 
+ <section class="card c12" id="e3card"><h2>4 · Experimento 3: ataques de reventa (aleatorios)</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px">
+   <div>
+    <label>Duración de la prueba</label><div class="val"><span id="e3dv">5</span> min</div>
+    <input id="e3d" type="range" min="2" max="20" value="5">
+    <label style="display:flex;gap:8px;align-items:center;margin-top:12px"><input id="e3f" type="checkbox" checked style="width:auto"> Con tráfico normal de fondo (400/min)</label>
+    <div class="row"><button class="go" id="e3i" style="background:var(--mor)">▶ Iniciar prueba de ataques</button><button class="stop" id="e3s">■ Detener</button></div>
+    <div class="row"><button class="gris" id="e3r">↺ Reiniciar estado de EXP-3</button><button class="gris" id="e3m">⬇ Resumen (.md)</button></div>
+    <small style="color:var(--sec);display:block;margin-top:8px">La <b>cantidad</b> de ataques, el <b>momento</b> y el <b>tipo</b> (bot individual, granja de cuentas o acaparador de asientos) se eligen al azar. Antes de una prueba oficial conviene reiniciar el estado.</small>
+   </div>
+   <div>
+    <div id="e3est" class="val" style="font-size:16px">sin prueba en curso</div>
+    <div class="sem" style="margin-top:10px">
+     <div class="s gr" id="e3s1"><small>S-1 · p95 de detección ≤ 100 ms</small><b id="e3p1">–</b></div>
+     <div class="s gr" id="e3s2"><small>S-2 · p95 de recuperación ≤ 300 ms</small><b id="e3p2">–</b></div>
+    </div>
+    <small id="e3ex" style="color:var(--sec);display:block;margin-top:8px"></small>
+   </div>
+  </div>
+  <div style="overflow-x:auto;margin-top:14px"><table id="e3t" style="width:100%;border-collapse:collapse;font-size:14px"></table></div>
+  <div id="e3l" style="margin-top:12px"></div>
+ </section>
+
  <section class="card c12"><h2>Resultado de cada inyección</h2><div id="evs"><small style="color:var(--sec)">Aún no hay inyecciones.</small></div></section>
 </main>
 <script>
 const $=id=>document.getElementById(id);
 // Vistas de Grafana: cada tablero (EXP-1 y EXP-2) guarda su propio "desde cuándo" y el enlace lo abre sin la historia anterior.
-const TABLEROS={1:'exp1asr',2:'exp2asr'};
+const TABLEROS={1:'exp1asr',2:'exp2asr',3:'exp3asr'};
 const gget=n=>{try{return +localStorage.getItem('vistaDesde'+n)||0}catch(e){return 0}};
 function gvista(n,reiniciar){ if(reiniciar){try{localStorage.setItem('vistaDesde'+n,String(Date.now()))}catch(e){}}
  const d=gget(n), q=d?`from=${d}&to=now`:'from=now-30m&to=now';
  $('g'+n).href=`http://localhost:30300/d/${TABLEROS[n]}?orgId=1&${q}&refresh=5s`;
  $('vd'+n).textContent=d?'desde '+new Date(d).toLocaleTimeString():'últimos 30 min'; }
-const gtodas=r=>{gvista(1,r);gvista(2,r)};
+const gtodas=r=>{gvista(1,r);gvista(2,r);gvista(3,r)};
 const post=(u,b)=>fetch(u,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b||{})}).then(r=>r.json());
 $('dur').oninput=()=>$('durv').textContent=$('dur').value;
 $('pk').oninput=()=>$('pkv').textContent=$('pk').value;
@@ -104,6 +128,7 @@ $('bmx').onclick=async()=>{const r=await post('/api/pods',{max:+$('mx').value});
 $('bm1').onclick=async()=>{$('mx').value=1;$('mxv').textContent=1;const r=await post('/api/pods',{max:1,min:1});if(r.error)alert(r.error)};
 $('n').oninput=()=>$('nv').textContent=$('n').value;
 $('bv1').onclick=()=>{gvista(1,true);window.open($('g1').href,'_blank')};
+$('bv3').onclick=()=>{gvista(3,true);window.open($('g3').href,'_blank')};
 $('bv2').onclick=()=>{gvista(2,true);window.open($('g2').href,'_blank')};
 $('bi').onclick=()=>{gtodas(true);return post('/api/iniciar',{rpm:400,duracion_s:+$('dur').value*60})};
 $('bd').onclick=()=>post('/api/detener');
@@ -152,6 +177,29 @@ async function act(){
  if(d.eventos.length)$('evs').innerHTML=d.eventos.map(e=>`<div class="ev ${e.cumple?'':'mal'}"><b>${e.hora} · ${NOM[e.tipo]}</b> — ${e.n} solicitudes simultáneas a ${e.sillas.length==1?'la silla '+e.sillas[0]:'las sillas '+e.sillas.join(', ')}<br>
   <b style="color:var(--ok)">${e.confirmadas} confirmada${e.confirmadas==1?'':'s'}</b> · <b style="color:var(--mal)">${e.canceladas} cancelada${e.canceladas==1?'':'s'}</b>${e.errores?' · '+e.errores+' con error':''} · ${e.cumple?'✅ cumple D-3':'❌ INCUMPLE D-3'}${e.nota?'<br><small>'+e.nota+'</small>':''}</div>`).join('');
 }
+
+// ---- EXP-3: ataques aleatorios
+$('e3d').oninput=()=>$('e3dv').textContent=$('e3d').value;
+$('e3i').onclick=async()=>{gvista(3,true);const r=await post('/api/exp3/iniciar',{duracion_min:+$('e3d').value,fondo:$('e3f').checked});if(r.error)alert(r.error)};
+$('e3s').onclick=()=>post('/api/exp3/detener');
+$('e3r').onclick=async()=>{if(!confirm('Esto detiene todo y reinicia reservas, auditoría, colas, cuentas revocadas y bloqueos (tarda ~1 min). ¿Continuar?'))return;$('e3r').disabled=true;$('e3r').textContent='Reiniciando…';const r=await post('/api/exp3/reiniciar');$('e3r').disabled=false;$('e3r').textContent='↺ Reiniciar estado de EXP-3';gvista(3,true);if(r.error)alert(r.error)};
+$('e3m').onclick=()=>window.open('/api/exp3/resumen.md','_blank');
+const fm=(v,d=1)=>v==null?'n/d':v.toFixed(d)+' ms';
+async function actE3(){
+ let d;try{d=await (await fetch('/api/exp3')).json()}catch(e){return}
+ const m=d.medidas;
+ $('e3i').disabled=d.activo;$('e3s').disabled=!d.activo;
+ $('e3est').textContent=d.activo?`Prueba en curso · quedan ${mmss(d.restante)} · ataques lanzados ${d.lanzados} de ${d.programados} (aleatorios)`:(d.lanzados?`Prueba terminada · ${d.lanzados} ataques lanzados`:'sin prueba en curso');
+ if(m){
+  const a=m.p95_deteccion_ms,b=m.p95_recuperacion_ms;
+  $('e3p1').textContent=fm(a,2);$('e3p2').textContent=fm(b,2);
+  $('e3s1').className='s '+(m.s1_cumple==null?'gr':m.s1_cumple?'verde':'rojo');$('e3s2').className='s '+(m.s2_cumple==null?'gr':m.s2_cumple?'verde':'rojo');
+  $('e3ex').textContent=`Legítimos marcados: ${m.legitimos_marcados} · asientos liberados ${m.asientos_liberados} · órdenes canceladas ${m.ordenes_canceladas} · cuentas revocadas ${m.cuentas_revocadas}`+(m.solicitudes_antes_de_marca!=null?` · solicitudes de atacantes antes de la marca (prom.) ${m.solicitudes_antes_de_marca.toFixed(1)}`:'');
+  $('e3t').innerHTML='<tr style="text-align:left;color:var(--sec)"><th>Tipo de ataque</th><th>Ataques</th><th>Cuentas inyectadas</th><th>Cuentas marcadas</th><th>p95 detección</th><th>p95 recuperación</th></tr>'+Object.values(m.por_tipo).map(t=>`<tr style="border-top:1px solid var(--borde)"><td>${t.nombre}</td><td>${t.ataques}</td><td>${t.cuentas_inyectadas}</td><td>${t.cuentas_marcadas}</td><td>${fm(t.p95_deteccion_ms)}</td><td>${fm(t.p95_recuperacion_ms)}</td></tr>`).join('');
+ }
+ $('e3l').innerHTML=d.ataques.length?'<small style="color:var(--sec)">Ataques lanzados (más reciente primero)</small>'+d.ataques.map(a=>`<div class="ev" style="border-left-color:var(--mor)"><b>${a.hora} · ${a.id} · ${a.nombre}</b> — ${a.cuentas} cuentas · ${a.solicitudes} solicitudes · <b style="color:var(--mal)">${a.bloqueadas} rechazadas por cuenta revocada</b>${a.terminado?' · terminado':' · en curso'}</div>`).join(''):'';
+}
+setInterval(actE3,3000);actE3();
 gtodas(false);
 setInterval(act,1000);act();
 </script></body></html>

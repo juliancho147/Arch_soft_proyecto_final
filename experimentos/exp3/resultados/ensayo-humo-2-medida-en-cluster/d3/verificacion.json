@@ -1,0 +1,51 @@
+{
+  "asientos_con_mas_de_una_reserva_auditoria" : 0,
+  "asientos_con_mas_de_una_reserva_bitacora" : 0,
+  "asientos_vendidos_duplicados_bd_reserva" : 0,
+  "asientos_bloqueados_duplicados_bd_reserva" : 0,
+  "bloqueos_parciales" : 0,
+  "bloqueos_huerfanos_sin_ok_en_cliente" : 0,
+  "conflictos_total" : 82,
+  "conflictos_con_resultado_esperado" : 82,
+  "conflictos_fallidos" : [ ],
+  "revisiones_4min_total" : 0,
+  "revisiones_4min_rechazadas" : 0,
+  "revisiones_8min_total" : 0,
+  "revisiones_8min_exitosas" : 0,
+  "liberaciones_total" : 0,
+  "liberacion_min_s" : null,
+  "liberacion_p50_s" : null,
+  "liberacion_max_s" : null,
+  "llegadas_normales" : 1786,
+  "llegadas_normales_ok" : 1786,
+  "confirmaciones" : 1248,
+  "confirmaciones_ok" : 1248,
+  "solicitudes_reservar_total" : 2755,
+  "errores_tecnicos" : 0,
+  "filas_reserva_log" : 3474,
+  "vendidos_reserva_log" : 1248,
+  "vendidos_estado_bd_bloqueo" : 1248,
+  "bloqueos_activos_al_final" : 678,
+  "conflictos_por_tipo" : {
+    "ATAQUE_BOT" : {
+      "conflictos" : 5,
+      "con_resultado_esperado" : 5,
+      "solicitudes" : 400
+    },
+    "CONF_GRUPOS_CRUZADOS" : {
+      "conflictos" : 25,
+      "con_resultado_esperado" : 25,
+      "solicitudes" : 184
+    },
+    "CONF_MISMO_ASIENTO" : {
+      "conflictos" : 28,
+      "con_resultado_esperado" : 28,
+      "solicitudes" : 214
+    },
+    "CONF_VENDIDO" : {
+      "conflictos" : 24,
+      "con_resultado_esperado" : 24,
+      "solicitudes" : 171
+    }
+  }
+}

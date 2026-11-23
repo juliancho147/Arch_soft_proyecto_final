@@ -12,4 +12,4 @@ for h in nodo-entrada nodo-reserva nodo-pasarela; do
   kubectl -n taq patch hpa $h --type merge -p "{\"spec\":{\"minReplicas\":$MIN,\"maxReplicas\":$MAX}}" >/dev/null
   [ "$1" = exp1 ] && kubectl -n taq scale deploy/$h --replicas=1 >/dev/null
 done
-echo "Modo $1: autoescalado $MIN–$MAX réplicas por pod."; kubectl -n taq get hpa
+echo "Modo $1: autoescalado ${MIN}–${MAX} réplicas por pod."; kubectl -n taq get hpa

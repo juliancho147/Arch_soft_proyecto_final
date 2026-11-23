@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """Panel de control de EXP-1: tráfico normal parametrizable + inyección de compras simultáneas a demanda.
 Solo biblioteca estándar. Uso: python3 servidor.py  →  http://localhost:8088"""
-import json, os, random, subprocess, threading, time, urllib.parse, urllib.request
+import json, os, random, shutil, subprocess, threading, time, urllib.parse, urllib.request
+import ataques                                  # EXP-3: ataques de reventa aleatorios
 from collections import deque
 from datetime import datetime
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
@@ -274,6 +275,24 @@ def reiniciar_estado():
         for k in ("enviadas", "ok", "canceladas", "errores", "confirmadas", "abandonadas"): S[k] = 0
         eventos.clear(); confirmados.clear(); bloques_usados.clear(); lat.clear(); sesion["dir"] = None
 
+def reiniciar_exp3():
+    """Deja el sistema en cero para EXP-3 (igual que reiniciar-estado-exp3.sh): reservas, tablas de seguridad, colas, cuentas revocadas/marcadas, bloqueos."""
+    pasos = ['kubectl -n taq exec deploy/postgres -- psql -U taq -d taq -qc "TRUNCATE reserva_log RESTART IDENTITY; DROP TABLE IF EXISTS auditoria_seguridad, cuenta_revocada, orden_cancelada"',
+             "kubectl -n taq exec deploy/redis -- sh -c 'redis-cli --scan --pattern \"cola_*\" | xargs -r redis-cli del >/dev/null; redis-cli del cuentas_revocadas cuentas_marcadas >/dev/null; true'",
+             "kubectl -n taq rollout restart deploy/bd-bloqueo deploy/nodo-entrada deploy/nodo-reserva deploy/nodo-pasarela deploy/deteccion deploy/respuesta"]
+    pasos += [f"kubectl -n taq rollout status deploy/{d} --timeout=300s" for d in ("bd-bloqueo", "nodo-entrada", "nodo-reserva", "nodo-pasarela", "deteccion", "respuesta")]
+    errores = []
+    for c in pasos:
+        r = subprocess.run(c, shell=True, capture_output=True, text=True)
+        if r.returncode: errores.append((r.stderr or r.stdout).strip()[:160])
+    time.sleep(15)
+    with lock:
+        for k in ("enviadas", "ok", "canceladas", "errores", "confirmadas", "abandonadas"): S[k] = 0
+        eventos.clear(); confirmados.clear(); bloques_usados.clear(); lat.clear(); sesion["dir"] = None
+    with ataques.lock:
+        ataques.E["ataques"] = []; ataques.E["resumen"] = None; ataques.E["programados"] = 0
+    return errores
+
 class H(BaseHTTPRequestHandler):
     def log_message(self, *a): pass
     def _j(self, obj, code=200):
@@ -281,6 +300,11 @@ class H(BaseHTTPRequestHandler):
         self.send_header("Content-Type", "application/json"); self.send_header("Content-Length", str(len(b))); self.end_headers(); self.wfile.write(b)
     def do_GET(self):
         if self.path == "/api/estado": return self._j(estado())
+        if self.path == "/api/exp3": return self._j(ataques.estado())
+        if self.path == "/api/exp3/resumen.md":
+            b = ataques.resumen_md().encode()
+            self.send_response(200); self.send_header("Content-Type", "text/markdown; charset=utf-8")
+            self.send_header("Content-Disposition", "attachment; filename=exp3-resumen.md"); self.send_header("Content-Length", str(len(b))); self.end_headers(); self.wfile.write(b); return
         b = open(os.path.join(AQUI, "index.html"), "rb").read()
         self.send_response(200); self.send_header("Content-Type", "text/html; charset=utf-8"); self.send_header("Content-Length", str(len(b))); self.end_headers(); self.wfile.write(b)
     def do_POST(self):
@@ -297,6 +321,19 @@ class H(BaseHTTPRequestHandler):
             if os.environ.get("TAQ_SIN_KUBECTL"):
                 return self._j(dict(ok=False, error="En AWS el estado se reinicia con scripts/reiniciar-estado.sh desde tu equipo."))
             detener(); reiniciar_estado(); return self._j(dict(ok=True))
+        if self.path == "/api/exp3/iniciar":
+            dur = int(float(d.get("duracion_min", 5)) * 60)
+            plan = ataques.iniciar(dur, d.get("semilla"))
+            if plan is None: return self._j(dict(ok=False, error="Ya hay una prueba de ataques en curso."))
+            if d.get("fondo", True): iniciar(400, dur)                 # tráfico normal de fondo a 400/min
+            return self._j(dict(ok=True, programados=len(plan), duracion_s=dur))
+        if self.path == "/api/exp3/detener":
+            ataques.detener(); detener(); return self._j(dict(ok=True))
+        if self.path == "/api/exp3/reiniciar":
+            if os.environ.get("TAQ_SIN_KUBECTL") or not shutil.which("kubectl"):
+                return self._j(dict(ok=False, error="Este panel no tiene kubectl: reinicia con exp3/aws/scripts/reiniciar-estado-exp3.sh."))
+            ataques.detener(); detener(); err = reiniciar_exp3()
+            return self._j(dict(ok=not err, error="; ".join(err) or None))
         self._j(dict(error="ruta"), 404)
 
 if __name__ == "__main__":

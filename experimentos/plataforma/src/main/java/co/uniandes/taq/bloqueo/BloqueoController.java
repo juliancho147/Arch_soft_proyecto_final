@@ -38,6 +38,13 @@ public class BloqueoController {
         return bd.liberarComprador((String) c.get("comprador"), Boolean.TRUE.equals(c.get("revocar")));
     }
 
+    /** EXP-3 v2: libera varios compradores en UNA operación del hilo único. Cuerpo: {"compradores":[...],"revocar":true}. */
+    @SuppressWarnings("unchecked")
+    @PostMapping("/liberar-compradores")
+    public Map<String, Object> liberarCompradores(@RequestBody Map<String, Object> c) throws Exception {
+        return bd.liberarCompradores((List<String>) c.get("compradores"), Boolean.TRUE.equals(c.get("revocar")));
+    }
+
     /** EXP-3: asientos retenidos por cada comprador de la lista (separados por coma). */
     @GetMapping("/retenidos")
     public Map<String, Object> retenidos(@RequestParam String compradores) throws Exception {

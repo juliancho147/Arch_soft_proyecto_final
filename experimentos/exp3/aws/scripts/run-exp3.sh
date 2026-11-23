@@ -4,40 +4,61 @@
 # Uso: run-exp3.sh <n> <semilla>
 #   Corrida del plan: 1 min calentamiento + 12 min normal (30 ataques) + 2 min rampa + 10 min pico (10 ataques) a 8.000/min.
 #   Humo (≈4 min):    SMOKE=1 run-exp3.sh 0 1
-# Requisitos: activar-exp3.sh ya ejecutado (imagen 1.1 y TAQ_DETECCION=on) y túneles abiertos (04-acceso.sh + acceso-exp3.sh).
+# Tipos de ataque (todos de reventa; los reparte por turnos, por fase): bot_individual, granja_cuentas, acaparador.
+#   TIPOS_ATAQUE=bot_individual,granja_cuentas,acaparador (por defecto los tres)   p. ej. TIPOS_ATAQUE=bot_individual reproduce la corrida anterior
+#   BOTS (cuentas por ataque bot_individual), CUENTAS_GRANJA, SOL_GRANJA_MIN (por cuenta), CUENTAS_ACAPARADOR, SOL_ACAPARADOR_MIN, ASIENTOS_ACAPARADOR
+#   UMBRAL_ASIENTOS (7 por defecto: más de 7 asientos DISTINTOS de una cuenta en la ventana)
+# Requisitos: activar-exp3.sh ya ejecutado (imagen TAG (1.3 por defecto, ver activar-exp3.sh) y TAQ_DETECCION=on) y túneles abiertos (04-acceso.sh + acceso-exp3.sh).
 set -euo pipefail
 N=${1:?numero}; SEMILLA=${2:?semilla}
 if [ "${SMOKE:-0}" = "1" ]; then
-  WARM=${WARM_S:-15}; NORMAL=${NORMAL_S:-60}; RAMPA=${RAMPA_S:-20}; PICO=${PICO_S:-45}; AT_N=${ATAQUES_NORMAL:-3}; AT_P=${ATAQUES_PICO:-2}; BOTS=${BOTS:-20}; TASA_PICO=${TASA_PICO:-2000}; HILOS=${HILOS:-200}
+  WARM=${WARM_S:-15}; NORMAL=${NORMAL_S:-60}; RAMPA=${RAMPA_S:-20}; PICO=${PICO_S:-45}; AT_N=${ATAQUES_NORMAL:-3}; AT_P=${ATAQUES_PICO:-2}; BOTS=${BOTS:-20}; CUENTAS_GRANJA=${CUENTAS_GRANJA:-100}; CUENTAS_ACAPARADOR=${CUENTAS_ACAPARADOR:-8}; TASA_PICO=${TASA_PICO:-2000}; HILOS=${HILOS:-200}
 else
-  WARM=${WARM_S:-60}; NORMAL=${NORMAL_S:-720}; RAMPA=${RAMPA_S:-120}; PICO=${PICO_S:-600}; AT_N=${ATAQUES_NORMAL:-30}; AT_P=${ATAQUES_PICO:-10}; BOTS=${BOTS:-100}; TASA_PICO=${TASA_PICO:-8000}; HILOS=${HILOS:-600}
+  WARM=${WARM_S:-60}; NORMAL=${NORMAL_S:-720}; RAMPA=${RAMPA_S:-120}; PICO=${PICO_S:-600}; AT_N=${ATAQUES_NORMAL:-30}; AT_P=${ATAQUES_PICO:-10}; BOTS=${BOTS:-100}; CUENTAS_GRANJA=${CUENTAS_GRANJA:-100}; CUENTAS_ACAPARADOR=${CUENTAS_ACAPARADOR:-20}; TASA_PICO=${TASA_PICO:-8000}; HILOS=${HILOS:-600}
 fi
 BOT_MIN=${BOT_POR_MIN:-10}; DUR_ATAQUE=${DURACION_MAX_ATAQUE_S:-60}
-AQUI="$(cd "$(dirname "$0")" && pwd)"; EXP3="$(dirname "$AQUI")"; EXPS="$(cd "$EXP3/.." && pwd)"
+TIPOS_ATAQUE=${TIPOS_ATAQUE:-bot_individual,granja_cuentas,acaparador}
+SOL_GRANJA_MIN=${SOL_GRANJA_MIN:-3}; SOL_ACAPARADOR_MIN=${SOL_ACAPARADOR_MIN:-5}; ASIENTOS_ACAPARADOR=${ASIENTOS_ACAPARADOR:-4}
+UMBRAL_ASIENTOS=${UMBRAL_ASIENTOS:-7}
+AQUI="$(cd "$(dirname "$0")" && pwd)"; EXP3="$(cd "$AQUI/../.." && pwd)"; EXPS="$(cd "$EXP3/.." && pwd)"
 SALIDA="$EXPS/exp3/resultados/corrida-$N"; mkdir -p "$SALIDA"
 export JAVA_HOME=${JAVA_HOME:-/opt/homebrew/opt/openjdk@21}
 TOTAL=$((WARM+NORMAL+RAMPA+PICO))
 echo "[1/8] Reiniciando estado (reservas, auditoría, colas, cuentas revocadas, bloqueos)"; "$AQUI/reiniciar-estado-exp3.sh"
 "$EXPS/exp2/aws/scripts/04-acceso.sh" >/dev/null; "$AQUI/acceso-exp3.sh"
 until curl -sf localhost:30090/actuator/health >/dev/null && curl -sf localhost:30091/actuator/health >/dev/null && curl -sf localhost:30092/actuator/health >/dev/null; do sleep 2; done
+# El hash Redis parametros_antifraude sobrevive entre corridas (y con la imagen 1.1 quedó umbral_asientos=9): se fija explícitamente.
+curl -sf -X PUT -H 'Content-Type: application/json' -d "{\"umbral_asientos\":$UMBRAL_ASIENTOS}" localhost:30091/parametros >/dev/null || echo "      AVISO: no se pudo fijar umbral_asientos"
 echo "      reglas antifraude vigentes: $(curl -s localhost:30091/parametros)"
 echo "[2/8] Calentando el generador (scripts Groovy actualizados al pod jmeter)"
 POD=$(kubectl -n taq get pod -l app=jmeter -o jsonpath='{.items[0].metadata.name}')
 for f in init.groovy hilo.groovy; do kubectl -n taq cp "$EXPS/exp1/carga/$f" "$POD:/carga/$f" -c jmeter; done
-PARAR="$SALIDA/.parar-medicion"; rm -f "$PARAR"
-echo "[3/8] Medición independiente de S-2 (consulta el estado cada pocos ms)"
-python3 "$EXP3/scripts/medir_recuperacion.py" "$SALIDA/recuperacion_medida.json" --paso-ms 5 --archivo-parar "$PARAR" --hasta-epoch $(( $(date +%s) + TOTAL + 200 )) >"$SALIDA/medir_recuperacion.log" 2>&1 &
-MEDIDOR=$!
-echo "[4/8] Carga con JMeter (semilla $SEMILLA): ${WARM}s calentamiento + ${NORMAL}s normal [$AT_N ataques] + ${RAMPA}s rampa + ${PICO}s pico a $TASA_PICO/min [$AT_P ataques]; $BOTS bots x ataque a $BOT_MIN/min"
+# El medidor corre DENTRO del clúster (pod 'panel', mismo nodo que JMeter, con Python): desde el Mac cada consulta cruza Internet y los túneles
+# (~100-300 ms) y la "medida independiente" salía de 500-600 ms con una recuperación interna de ~14 ms.
+PANEL=$(kubectl -n taq get pod -l app=panel -o jsonpath='{.items[0].metadata.name}')
+echo "[3/8] Medición independiente de S-2 dentro del clúster (consulta el estado cada pocos ms)"
+kubectl -n taq cp "$EXP3/scripts/medir_recuperacion.py" "$PANEL:/tmp/medir_recuperacion.py"
+kubectl -n taq exec "$PANEL" -- sh -c 'rm -f /tmp/parar-medicion /tmp/medir.fin /tmp/recuperacion_medida.json'
+kubectl -n taq exec "$PANEL" -- sh -c "nohup sh -c 'python3 /tmp/medir_recuperacion.py /tmp/recuperacion_medida.json --paso-ms 5 --archivo-parar /tmp/parar-medicion --hasta-epoch $(( $(date +%s) + TOTAL + 300 )) --deteccion http://deteccion:8080 --respuesta http://respuesta:8080 --bloqueo http://bd-bloqueo:8080 > /tmp/medir.log 2>&1; touch /tmp/medir.fin' >/dev/null 2>&1 &"
+echo "[4/8] Carga con JMeter (semilla $SEMILLA): ${WARM}s calentamiento + ${NORMAL}s normal [$AT_N ataques] + ${RAMPA}s rampa + ${PICO}s pico a $TASA_PICO/min [$AT_P ataques]; tipos [$TIPOS_ATAQUE] (bot: $BOTS cuentas a $BOT_MIN/min; granja: $CUENTAS_GRANJA cuentas a $SOL_GRANJA_MIN/min tras una IP; acaparador: $CUENTAS_ACAPARADOR cuentas, grupos de $ASIENTOS_ACAPARADOR a $SOL_ACAPARADOR_MIN/min)"
 kubectl -n taq exec deploy/jmeter -- sh -c "rm -rf /resultados/*; jmeter -n -t /carga/plan-exp1.jmx -Jdir=/carga -Jsemilla=$SEMILLA \
   -Jcalentamiento_s=$((WARM+NORMAL)) -Jtrafico_s=$((RAMPA+PICO)) -Jperfil=rampa -Jrampa_s=$RAMPA -Jtasa_pico=$TASA_PICO -Jdescuenta_conflictos=true \
-  -Jataques_normal=$AT_N -Jataques_pico=$AT_P -Jbots_por_ataque=$BOTS -Jsolicitudes_bot_por_min=$BOT_MIN -Jduracion_max_ataque_s=$DUR_ATAQUE -Jataque_normal_desde_s=$WARM \
+  -Jataques_normal=$AT_N -Jataques_pico=$AT_P -Jbots_por_ataque=$BOTS -Jsolicitudes_bot_por_min=$BOT_MIN \
+  -Jtipos_ataque=$TIPOS_ATAQUE -Jcuentas_por_granja=$CUENTAS_GRANJA -Jsolicitudes_granja_por_cuenta_min=$SOL_GRANJA_MIN \
+  -Jcuentas_acaparadoras=$CUENTAS_ACAPARADOR -Jsolicitudes_acaparador_por_min=$SOL_ACAPARADOR_MIN -Jasientos_por_solicitud_acaparador=$ASIENTOS_ACAPARADOR -Jduracion_max_ataque_s=$DUR_ATAQUE -Jataque_normal_desde_s=$WARM \
   -Jhilos=$HILOS -Jhost=nodo-entrada:8080 -Jttl_s=480 -Jbitacora=/resultados/bitacora.csv -Jejecucion_json=/resultados/ejecucion.json \
   -l /resultados/jmeter.jtl -j /resultados/jmeter.log" 2>&1 | grep -E "summary =|Starting|end of run" || true
 sleep 20
-touch "$PARAR"; wait $MEDIDOR || true; rm -f "$PARAR"
+kubectl -n taq exec "$PANEL" -- touch /tmp/parar-medicion
+for i in $(seq 1 60); do kubectl -n taq exec "$PANEL" -- test -f /tmp/medir.fin 2>/dev/null && break; sleep 2; done
+for i in 1 2 3 4 5; do
+  kubectl -n taq exec "$PANEL" -- cat /tmp/recuperacion_medida.json > "$SALIDA/recuperacion_medida.json" 2>/dev/null
+  R=$(kubectl -n taq exec "$PANEL" -- md5sum /tmp/recuperacion_medida.json | awk '{print $1}'); L=$(md5 -q "$SALIDA/recuperacion_medida.json" 2>/dev/null || md5sum "$SALIDA/recuperacion_medida.json" | awk '{print $1}')
+  [ "$R" = "$L" ] && break; sleep 2
+done
+kubectl -n taq exec "$PANEL" -- cat /tmp/medir.log > "$SALIDA/medir_recuperacion.log" 2>/dev/null || true
 echo "[5/8] Copiando resultados del generador"
-kubectl -n taq cp "$POD:/resultados" "$SALIDA" -c jmeter
+for f in bitacora.csv ejecucion.json; do "$EXPS/exp2/aws/scripts/copiar_pod.sh" "/resultados/$f" "$SALIDA/$f"; done
 echo "[6/8] Verificación D-3 sobre las reservas legítimas y de bots (verificador de EXP-1)"
 mkdir -p "$SALIDA/d3"; set +e
 "$JAVA_HOME/bin/java" -Dloader.main=co.uniandes.taq.verificador.Verificador -cp "$EXPS/plataforma/target/taq.jar" \

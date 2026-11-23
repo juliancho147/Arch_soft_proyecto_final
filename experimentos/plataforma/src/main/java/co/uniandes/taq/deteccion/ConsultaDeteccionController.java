@@ -38,7 +38,7 @@ public class ConsultaDeteccionController {
     public synchronized List<Map<String, Object>> auditoria(@RequestParam(defaultValue = "0") long desde,
                                                             @RequestParam(defaultValue = "1000") int limite,
                                                             @RequestParam(defaultValue = "") String tipo) throws Exception {
-        String sql = "SELECT id, tipo, actor_cuenta, actor_ip, detalle::text, ts_evento_detector, ts_evidencia FROM auditoria_seguridad "
+        String sql = "SELECT id, tipo, actor_cuenta, actor_ip, detalle::text, ts_evento_detector, ts_evidencia, tipo_atacante FROM auditoria_seguridad "
             + "WHERE id > ?" + (tipo.isEmpty() ? "" : " AND tipo = ?") + " ORDER BY id LIMIT ?";
         List<Map<String, Object>> filas = new ArrayList<>();
         try (PreparedStatement ps = conexion().prepareStatement(sql)) {
@@ -51,7 +51,7 @@ public class ConsultaDeteccionController {
                     Map<String, Object> f = new LinkedHashMap<>();
                     f.put("id", rs.getLong(1)); f.put("tipo", rs.getString(2)); f.put("cuenta", rs.getString(3));
                     f.put("ip", rs.getString(4)); f.put("detalle", rs.getString(5));
-                    f.put("ts_evento_detector", rs.getLong(6)); f.put("ts_evidencia", rs.getLong(7));
+                    f.put("ts_evento_detector", rs.getLong(6)); f.put("ts_evidencia", rs.getLong(7)); f.put("tipo_atacante", rs.getString(8));
                     filas.add(f);
                 }
             }
