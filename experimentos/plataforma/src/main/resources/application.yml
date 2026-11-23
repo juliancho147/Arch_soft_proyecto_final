@@ -1,0 +1,43 @@
+server:
+  tomcat:
+    threads:
+      max: ${TAQ_TOMCAT_THREADS:300}
+    accept-count: 500
+spring:
+  main:
+    banner-mode: "off"
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+  metrics:
+    tags:
+      componente: ${TAQ_ROLE:desconocido}
+taq:
+  role: ${TAQ_ROLE:gateway}
+  redis-url: ${TAQ_REDIS_URL:redis://localhost:6379}
+  bloqueo-url: ${TAQ_BLOQUEO_URL:http://localhost:8081}
+  reserva-url: ${TAQ_RESERVA_URL:http://localhost:8082}
+  pasarela-url: ${TAQ_PASARELA_URL:http://localhost:8083}
+  db-url: ${TAQ_DB_URL:jdbc:postgresql://localhost:5432/taq}
+  db-user: ${TAQ_DB_USER:taq}
+  db-pass: ${TAQ_DB_PASS:taq}
+  ttl-seg: ${TAQ_TTL_SEG:480}
+  cola-max: ${TAQ_COLA_MAX:5000}
+  workers: ${TAQ_WORKERS:16}
+  pasarela-ms: ${TAQ_PASARELA_MS:150}
+  pod: ${HOSTNAME:local}
+  # ---- EXP-3 (seguridad). Todo apagado por defecto: con deteccion=off el comportamiento es el de EXP-1/EXP-2.
+  deteccion: ${TAQ_DETECCION:off}
+  evento-cola-max: ${TAQ_EVENTO_COLA_MAX:50000}        # gateway: se descartan eventos si cola_evento_trafico supera este tamaño
+  evento-vuelo-max: ${TAQ_EVENTO_VUELO_MAX:5000}       # gateway: comandos Redis asíncronos sin confirmar permitidos a la vez
+  revocadas-refresco-ms: ${TAQ_REVOCADAS_REFRESCO_MS:1000}
+  deteccion-hilos: ${TAQ_DETECCION_HILOS:4}
+  respuesta-hilos: ${TAQ_RESPUESTA_HILOS:4}
+  antifraude:                                          # valores por defecto de componente_parametrizacion
+    ventana-s: ${TAQ_AF_VENTANA_S:30}
+    umbral-cuenta: ${TAQ_AF_UMBRAL_CUENTA:3}
+    umbral-ip: ${TAQ_AF_UMBRAL_IP:20}
+    umbral-asientos: ${TAQ_AF_UMBRAL_ASIENTOS:9}
+  oraculo-prefijo-bot: ${TAQ_ORACULO_PREFIJO_BOT:bot-}   # solo instrumentación de EXP-3 (cuenta falsos positivos); vacío = apagado

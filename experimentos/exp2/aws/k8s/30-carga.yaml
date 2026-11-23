@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: jmeter, namespace: taq }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: jmeter } }
+  template:
+    metadata: { labels: { app: jmeter } }
+    spec:
+      nodeSelector: { rol: carga }
+      tolerations: [{ key: rol, operator: Equal, value: carga, effect: NoSchedule }]
+      containers:
+        - name: jmeter
+          image: 767397902469.dkr.ecr.us-east-1.amazonaws.com/taq-jmeter:1.0
+          command: ["sleep", "infinity"]
+          env: [{ name: JVM_ARGS, value: "-Xms2g -Xmx3g" }]
+          resources: { requests: { cpu: "3", memory: 4Gi } }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: panel, namespace: taq }
+spec:
+  replicas: 1
+  selector: { matchLabels: { app: panel } }
+  template:
+    metadata: { labels: { app: panel } }
+    spec:
+      serviceAccountName: panel
+      nodeSelector: { rol: carga }
+      tolerations: [{ key: rol, operator: Equal, value: carga, effect: NoSchedule }]
+      containers:
+        - name: panel
+          image: 767397902469.dkr.ecr.us-east-1.amazonaws.com/taq-panel:1.0
+          ports: [{ containerPort: 8088 }]
+          env:
+            - { name: TAQ_GATEWAY, value: "http://nodo-entrada:8080" }
+            - { name: TAQ_PROM, value: "http://kube-prometheus-stack-prometheus.monitoring:9090" }
+          resources: { requests: { cpu: 500m, memory: 256Mi } }
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata: { name: panel, namespace: taq }
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata: { name: panel, namespace: taq }
+rules:
+  - { apiGroups: [""], resources: [pods], verbs: [get, list] }
+  - { apiGroups: [""], resources: [pods/exec], verbs: [create] }
+  - { apiGroups: [apps], resources: [deployments], verbs: [get, list, patch] }
+  - { apiGroups: [apps], resources: [deployments/scale], verbs: [get, patch, update] }
+  - { apiGroups: [autoscaling], resources: [horizontalpodautoscalers], verbs: [get, list, patch] }
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata: { name: panel, namespace: taq }
+roleRef: { apiGroup: rbac.authorization.k8s.io, kind: Role, name: panel }
+subjects: [{ kind: ServiceAccount, name: panel, namespace: taq }]
+---
+apiVersion: v1
+kind: Service
+metadata: { name: panel, namespace: taq }
+spec: { selector: { app: panel }, ports: [{ port: 8088 }] }

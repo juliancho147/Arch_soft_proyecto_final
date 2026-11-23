@@ -1,0 +1,25 @@
+# kube-prometheus-stack: Prometheus + Grafana + kube-state-metrics + node-exporter (cAdvisor viene del kubelet).
+alertmanager: { enabled: false }
+nodeExporter: { enabled: true }
+prometheus:
+  prometheusSpec:
+    scrapeInterval: 5s
+    evaluationInterval: 15s
+    retention: 3d
+    podMonitorSelectorNilUsesHelmValues: false       # que tome nuestro PodMonitor
+    serviceMonitorSelectorNilUsesHelmValues: false
+    nodeSelector: { rol: sistema }
+    resources: { requests: { cpu: 500m, memory: 1Gi }, limits: { memory: 2Gi } }
+    storageSpec:
+      volumeClaimTemplate:
+        spec: { storageClassName: gp3, accessModes: [ReadWriteOnce], resources: { requests: { storage: 20Gi } } }
+grafana:
+  nodeSelector: { rol: sistema }
+  defaultDashboardsEnabled: false
+  sidecar:
+    dashboards: { enabled: true, label: grafana_dashboard, searchNamespace: ALL }
+    datasources: { uid: prom }                       # nuestros tableros usan el uid "prom"
+  grafana.ini:
+    users: { default_theme: dark }
+kube-state-metrics:
+  nodeSelector: { rol: sistema }

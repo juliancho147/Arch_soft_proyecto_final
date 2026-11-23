@@ -1,0 +1,119 @@
+{
+  "semilla": 1,
+  "ventana_s": 720,
+  "desfase_reloj_prometheus_s": 0.0020873546600341797,
+  "gateway_ok": {
+    "n": 5591.847809364502,
+    "p50_ms": 2.838376610100184,
+    "p95_ms": 8.413410301953823,
+    "p99_ms": 16.210000000000086,
+    "fraccion_le_150ms": 0.9960381775616783
+  },
+  "gateway_todas": {
+    "n": 8185.869051381962,
+    "p50_ms": 2.8728442182640657,
+    "p95_ms": 8.731588032220946,
+    "p99_ms": 17.872932330827094,
+    "fraccion_le_150ms": 0.9948333128306064
+  },
+  "rechazos_cola_llena": 0.0,
+  "reservar_por_resultado": {
+    "NO_DISPONIBLE": 2594.0212420174603,
+    "OK": 5591.847809364502
+  },
+  "cliente_ok": {
+    "n": 5586,
+    "p50_ms": 5.0,
+    "p95_ms": 12.0,
+    "p99_ms": 21.0,
+    "fraccion_le_150ms": 0.9958825635517364
+  },
+  "cliente_todas": {
+    "n": 8164,
+    "p50_ms": 5.0,
+    "p95_ms": 13.0,
+    "p99_ms": 25.0,
+    "fraccion_le_150ms": 0.9947329740323371
+  },
+  "diferencia_p95_cliente_menos_gateway_ms": 3.5865896980461773,
+  "generador": {
+    "retraso_prom_ms": 0.43264433357091947,
+    "retraso_p95_ms": 2.0,
+    "retraso_p99_ms": 4.0,
+    "retraso_max_ms": 30
+  },
+  "diferencia_conteo_gateway_cliente": 0.0026715613509930244,
+  "ejecucion_valida": true,
+  "tasa_real_reservar_por_min": 682.1557542818301,
+  "prometheus": {
+    "cpu_pct": {
+      "bloqueo": {
+        "prom": 3.7362548671066027,
+        "max": 14.468085106382977
+      },
+      "gateway": {
+        "prom": 2.1070350088094694,
+        "max": 7.187499999999999
+      },
+      "pasarela": {
+        "prom": 2.115112565820331,
+        "max": 6.216216216216217
+      },
+      "reserva": {
+        "prom": 3.487464672222793,
+        "max": 43.22727272727273
+      }
+    },
+    "heap_mb": {
+      "bloqueo": {
+        "prom": 30.771558814578587,
+        "max": 44.000022888183594
+      },
+      "gateway": {
+        "prom": 42.436947186787926,
+        "max": 57.281105041503906
+      },
+      "pasarela": {
+        "prom": 26.588680744171143,
+        "max": 34.54536437988281
+      },
+      "reserva": {
+        "prom": 60.49353919230716,
+        "max": 150.21712493896484
+      }
+    },
+    "cola_solicitud": {
+      "prom": 0.22916666666666666,
+      "max": 33.0
+    },
+    "cola_operacion": {
+      "prom": 0.006944444444444444,
+      "max": 1.0
+    },
+    "cola_persistencia": {
+      "prom": 0.0,
+      "max": 0.0
+    },
+    "hilo_unico_pct": {
+      "prom": 0.07805697737906579,
+      "max": 0.40781587981115464
+    },
+    "ops_hilo_unico": {
+      "prom": 15.937200145443516,
+      "max": 20.919163233470663
+    },
+    "bloqueos_activos": {
+      "prom": 1177.1597222222222,
+      "max": 1884.0
+    },
+    "cache": {
+      "hit": 4738.915718763243,
+      "miss": 1045.2602031611232,
+      "tasa_hit": 0.8192896935933147
+    },
+    "ops_bd_bloqueo_ventana": {
+      "bloquear": 8175.7762237762245,
+      "vender": 3357.3146853146854
+    }
+  }
+}

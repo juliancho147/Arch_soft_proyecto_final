@@ -1,0 +1,8 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata: { name: taq, namespace: monitoring, labels: { release: kube-prometheus-stack } }
+spec:
+  namespaceSelector: { matchNames: [taq] }
+  selector: { matchLabels: { taq-metricas: "true" } }
+  podMetricsEndpoints:
+    - { port: http, path: /actuator/prometheus, interval: 5s }

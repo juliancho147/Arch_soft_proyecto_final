@@ -1,0 +1,13 @@
+{
+    "semilla": 2,
+    "tasa_por_min": 400,
+    "calentamiento_s": 60,
+    "trafico_s": 720,
+    "inicio_epoch_ms": 1795016500861,
+    "fin_calentamiento_epoch_ms": 1795016560861,
+    "fin_trafico_epoch_ms": 1795017280861,
+    "llegadas_normales": 5237,
+    "conflictos": 253,
+    "p_conflicto": 0.05,
+    "p_confirma": 0.7
+}
