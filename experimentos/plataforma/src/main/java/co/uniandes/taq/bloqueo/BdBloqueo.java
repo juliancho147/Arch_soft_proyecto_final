@@ -209,41 +209,70 @@ public class BdBloqueo {
         try {
             return enHiloUnico(() -> {
                 long t0 = System.nanoTime();
-                long ahora = System.currentTimeMillis();
-                if (revocar) revocados.add(comprador);
-                List<Integer> candidatos = new ArrayList<>();
-                if (indice) {
-                    Set<Integer> s = porComprador.remove(comprador);
-                    if (s != null) candidatos.addAll(s);
-                } else {   // sin índice (detección apagada): recorrido completo; solo para pruebas
-                    for (var e : bloqueados.entrySet()) if (e.getValue().comprador().equals(comprador)) candidatos.add(e.getKey());
-                }
-                java.util.Collections.sort(candidatos);
-                List<Integer> liberados = new ArrayList<>();
-                Map<String, List<Integer>> ordenes = new java.util.LinkedHashMap<>();
-                for (int a : candidatos) {
-                    Bloqueo b = bloqueados.get(a);
-                    if (b == null || !b.comprador().equals(comprador)) continue;   // ya no está bloqueado por él
-                    bloqueados.remove(a);
-                    liberados.add(a);
-                    ordenes.computeIfAbsent(b.solicitudId(), k -> new ArrayList<>()).add(a);
-                    auditoria.add(evento("LIBERACION_ATAQUE", a, b.solicitudId(), comprador, ahora));
-                }
-                activos = bloqueados.size();
-                if (liberadosAtaque != null) liberadosAtaque.increment(liberados.size());
-                List<Map<String, Object>> lista = new ArrayList<>();
-                ordenes.forEach((sol, as) -> lista.add(Map.of("solicitudId", sol,
-                    "asientos", as.stream().map(String::valueOf).collect(java.util.stream.Collectors.joining("-")))));
+                Map<String, Object> r = liberarUno(comprador, revocar, System.currentTimeMillis());
                 long ns = System.nanoTime() - t0;
                 if (operacionAtaque != null) operacionAtaque.record(ns, TimeUnit.NANOSECONDS);
-                Map<String, Object> r = new LinkedHashMap<>();
-                r.put("resultado", "OK"); r.put("comprador", comprador); r.put("liberados", liberados.size());
-                r.put("asientos", liberados); r.put("ordenes", lista); r.put("operacion_ms", ns / 1e6);
+                r.put("operacion_ms", ns / 1e6);
                 return r;
             });
         } finally {
             if (liberacionAtaque != null) liberacionAtaque.record(System.nanoTime() - total0, TimeUnit.NANOSECONDS);   // incluye la espera en cola
         }
+    }
+
+    /**
+     * EXP-3 v2 (S-2): libera los bloqueos de VARIOS compradores en UNA sola operación del hilo único (una espera en cola, un solo
+     * viaje HTTP). Devuelve un resultado por comprador con el mismo formato de liberarComprador. El endpoint de un comprador se conserva.
+     */
+    public Map<String, Object> liberarCompradores(List<String> compradores, boolean revocar) throws Exception {
+        final long total0 = System.nanoTime();
+        try {
+            return enHiloUnico(() -> {
+                long t0 = System.nanoTime();
+                long ahora = System.currentTimeMillis();
+                List<Map<String, Object>> resultados = new ArrayList<>(compradores.size());
+                for (String c : compradores) resultados.add(liberarUno(c, revocar, ahora));
+                long ns = System.nanoTime() - t0;
+                if (operacionAtaque != null) operacionAtaque.record(ns, TimeUnit.NANOSECONDS);
+                Map<String, Object> r = new LinkedHashMap<>();
+                r.put("resultado", "OK"); r.put("compradores", compradores.size()); r.put("resultados", resultados); r.put("operacion_ms", ns / 1e6);
+                return r;
+            });
+        } finally {
+            if (liberacionAtaque != null) liberacionAtaque.record(System.nanoTime() - total0, TimeUnit.NANOSECONDS);
+        }
+    }
+
+    /** Libera lo que retiene un comprador. SOLO se llama desde el hilo único. */
+    private Map<String, Object> liberarUno(String comprador, boolean revocar, long ahora) {
+        if (revocar) revocados.add(comprador);
+        List<Integer> candidatos = new ArrayList<>();
+        if (indice) {
+            Set<Integer> s = porComprador.remove(comprador);
+            if (s != null) candidatos.addAll(s);
+        } else {   // sin índice (detección apagada): recorrido completo; solo para pruebas
+            for (var e : bloqueados.entrySet()) if (e.getValue().comprador().equals(comprador)) candidatos.add(e.getKey());
+        }
+        java.util.Collections.sort(candidatos);
+        List<Integer> liberados = new ArrayList<>();
+        Map<String, List<Integer>> ordenes = new java.util.LinkedHashMap<>();
+        for (int a : candidatos) {
+            Bloqueo b = bloqueados.get(a);
+            if (b == null || !b.comprador().equals(comprador)) continue;   // ya no está bloqueado por él
+            bloqueados.remove(a);
+            liberados.add(a);
+            ordenes.computeIfAbsent(b.solicitudId(), k -> new ArrayList<>()).add(a);
+            auditoria.add(evento("LIBERACION_ATAQUE", a, b.solicitudId(), comprador, ahora));
+        }
+        activos = bloqueados.size();
+        if (liberadosAtaque != null) liberadosAtaque.increment(liberados.size());
+        List<Map<String, Object>> lista = new ArrayList<>();
+        ordenes.forEach((sol, as) -> lista.add(Map.of("solicitudId", sol,
+            "asientos", as.stream().map(String::valueOf).collect(java.util.stream.Collectors.joining("-")))));
+        Map<String, Object> r = new LinkedHashMap<>();
+        r.put("resultado", "OK"); r.put("comprador", comprador); r.put("liberados", liberados.size());
+        r.put("asientos", liberados); r.put("ordenes", lista);
+        return r;
     }
 
     /** EXP-3: cuántos asientos retiene cada comprador (por el hilo único: es el estado real). */

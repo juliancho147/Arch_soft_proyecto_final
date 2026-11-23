@@ -67,7 +67,7 @@ plataforma += despliegue("nodo-entrada", "gateway", 320, "500m", 2, "640Mi", "ap
 plataforma += despliegue("nodo-reserva", "reserva", 320, "500m", 2, "640Mi", "app",
                          extra_env='            - { name: TAQ_WORKERS, value: "16" }\n', antiafin=True)
 plataforma += despliegue("nodo-pasarela", "pasarela", 192, "250m", 1, "512Mi", "app", antiafin=True)
-plataforma += despliegue("bd-bloqueo", "bloqueo", 256, "1000m", 2, "512Mi", "sistema")   # un solo hilo: no escala, tiene su propio nodo estable
+plataforma += despliegue("bd-bloqueo", "bloqueo", 768, "600m", 2, "1280Mi", "sistema")   # un solo hilo: no escala, tiene su propio nodo estable
 plataforma += hpa("nodo-entrada") + hpa("nodo-reserva") + hpa("nodo-pasarela")
 (AQUI / "10-plataforma.yaml").write_text(plataforma.rstrip("-\n") + "\n")
 
@@ -141,7 +141,7 @@ metadata: {{ name: panel, namespace: taq }}
 rules:
   - {{ apiGroups: [""], resources: [pods], verbs: [get, list] }}
   - {{ apiGroups: [""], resources: [pods/exec], verbs: [create] }}
-  - {{ apiGroups: [apps], resources: [deployments], verbs: [get, list, patch] }}
+  - {{ apiGroups: [apps], resources: [deployments], verbs: [get, list, watch, patch] }}
   - {{ apiGroups: [apps], resources: [deployments/scale], verbs: [get, patch, update] }}
   - {{ apiGroups: [autoscaling], resources: [horizontalpodautoscalers], verbs: [get, list, patch] }}
 ---

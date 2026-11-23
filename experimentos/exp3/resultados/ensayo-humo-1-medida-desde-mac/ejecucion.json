@@ -1,0 +1,66 @@
+{
+    "semilla": 1,
+    "perfil": "rampa",
+    "perfil_puntos": "",
+    "asientos_frescos": 100000,
+    "base_conflicto": 100001,
+    "rampa_s": 20,
+    "tasa_pico_por_min": 2000,
+    "descuenta_conflictos": true,
+    "tasa_por_min": 400,
+    "calentamiento_s": 75,
+    "trafico_s": 65,
+    "inicio_epoch_ms": 1795380121243,
+    "fin_calentamiento_epoch_ms": 1795380196243,
+    "fin_trafico_epoch_ms": 1795380261243,
+    "llegadas_normales": 1786,
+    "conflictos": 77,
+    "p_conflicto": 0.05,
+    "p_confirma": 0.7,
+    "exp3": {
+        "ataque_normal_desde_s": 15,
+        "ataques_normal": 3,
+        "ataques_pico": 2,
+        "bots_por_ataque": 20,
+        "solicitudes_bot_por_min": 10,
+        "duracion_max_ataque_s": 60,
+        "solicitudes_max_por_bot": 10,
+        "ataques": [
+            {
+                "id": "A1",
+                "fase": "normal",
+                "t_ms": 51476,
+                "inicio_epoch_ms": 1795380172719,
+                "bots": 20
+            },
+            {
+                "id": "A2",
+                "fase": "normal",
+                "t_ms": 53108,
+                "inicio_epoch_ms": 1795380174351,
+                "bots": 20
+            },
+            {
+                "id": "A3",
+                "fase": "normal",
+                "t_ms": 62662,
+                "inicio_epoch_ms": 1795380183905,
+                "bots": 20
+            },
+            {
+                "id": "A4",
+                "fase": "pico",
+                "t_ms": 97342,
+                "inicio_epoch_ms": 1795380218585,
+                "bots": 20
+            },
+            {
+                "id": "A5",
+                "fase": "pico",
+                "t_ms": 113232,
+                "inicio_epoch_ms": 1795380234475,
+                "bots": 20
+            }
+        ]
+    }
+}

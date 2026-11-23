@@ -37,12 +37,23 @@ t0 = ej["inicio_epoch_ms"]
 VENT = {"normal": (t0 + ex["ataque_normal_desde_s"] * 1000, t0 + ej["calentamiento_s"] * 1000),
         "pico": (t0 + (ej["calentamiento_s"] + ej["rampa_s"]) * 1000, t0 + (ej["calentamiento_s"] + ej["trafico_s"]) * 1000)}
 ataques = {x["id"]: x for x in ex["ataques"]}
+TIPOS = ("bot_individual", "granja_cuentas", "acaparador")
+def ataque_de(cuenta):
+    m = re.match(r"bot-(A\d+)-\d+$", cuenta)
+    return m.group(1) if m and m.group(1) in ataques else None
+def tipo_inyectado(cuenta):
+    aid = ataque_de(cuenta)
+    return ataques[aid].get("tipo", "bot_individual") if aid else None      # corridas anteriores a los tipos: todo era bot_individual
+def etiqueta_auditoria(marca):
+    """Etiqueta tipo_atacante que el detector copió a la evidencia (la declaró el generador; el detector no la calcula)."""
+    d = json.loads(marca["detalle"]) if isinstance(marca.get("detalle"), str) else (marca.get("detalle") or {})
+    return marca.get("tipo_atacante") or d.get("tipo_atacante") or "sin_etiqueta"
 def fase_de(cuenta):
     m = re.match(r"bot-(A\d+)-\d+$", cuenta)
     return ataques[m.group(1)]["fase"] if m and m.group(1) in ataques else None
 
 # ---------- 1) bitácora del generador
-bots, legit = {}, []
+bots, legit, legit_cuentas = {}, [], set()
 with open(carp / "bitacora.csv") as f:
     for r in csv.DictReader(f):
         ini, fin = int(r["t_inicio_ms"]), int(r["t_fin_ms"])
@@ -50,8 +61,10 @@ with open(carp / "bitacora.csv") as f:
             bots.setdefault(r["comprador"], []).append({"ini": ini, "fin": fin, "http": int(r["http"]), "res": r["resultado"], "asiento": r["asientos"], "grupo": r["grupo"], "ip": r.get("ip", "")})
         elif r["tipo"] in LEGIT:
             legit.append((ini, fin - ini, r["resultado"], r["comprador"]))
+            legit_cuentas.add(r["comprador"])
 bots_ok = {c: sum(1 for x in l if x["res"] == "OK") for c, l in bots.items()}
-asientos_obtenidos = sum(bots_ok.values())
+ordenes_obtenidas = sum(bots_ok.values())                  # solicitudes de bots que lograron retener asientos (= órdenes que deben cancelarse)
+asientos_obtenidos = sum(len(x["asiento"].split("-")) for l in bots.values() for x in l if x["res"] == "OK")   # el acaparador retiene 4 por solicitud
 
 # ---------- 2) bd_auditoria
 aud, desde = [], 0
@@ -106,6 +119,31 @@ if medida:
 else:
     ventanas_rec = [(x["ts_evento_detector"], x["ts_evento_detector"] + rec_int.get(c, {}).get("ms_total_desde_alerta", 300) + 500) for c, x in marcas.items()]
 
+# ---------- 4b) consistencia por tipo etiquetado (el tipo lo DECLARA el generador; no hay clasificador)
+tipos_inyectados = [t for t in TIPOS if any(x.get("tipo", "bot_individual") == t for x in ataques.values())]
+for x in por_ataque: x["tipo"] = ataques[x["id"]].get("tipo", "bot_individual")
+por_tipo = {}
+for t in tipos_inyectados:
+    ids = [aid for aid, at in ataques.items() if at.get("tipo", "bot_individual") == t]
+    ctas = [c for c in bots if tipo_inyectado(c) == t]
+    marc = [c for c in ctas if c in marcas]
+    ant = [sum(1 for q in bots[c] if q["ini"] <= marcas[c]["ts_evidencia"]) for c in marc]
+    dms = [marcas[c]["ts_evidencia"] - marcas[c]["ts_evento_detector"] for c in marc]
+    r_i = [m["recuperacion_ms"] for m in (medida["mediciones"] if medida else []) if m["completo"] and tipo_inyectado(m["cuenta"]) == t]
+    r_a = [rec_int[c]["ms_total_desde_alerta"] for c in marc if c in rec_int]
+    reglas = [json.loads(marcas[c]["detalle"]).get("regla") for c in marc]
+    det_ids = [x["id"] for x in por_ataque if x["tipo"] == t and x["detectado"]]
+    por_tipo[t] = {"ataques_inyectados": len(ids), "ataques_detectados": len(det_ids), "todos_detectados": len(det_ids) == len(ids),
+                   "actores_inyectados": len(ctas), "actores_marcados": len(marc),
+                   "reglas": {r: reglas.count(r) for r in sorted(set(reglas))},
+                   "etiqueta_en_auditoria_coincide": sum(1 for c in marc if etiqueta_auditoria(marcas[c]) == t),
+                   "solicitudes_fraudulentas_antes_de_la_marca": {"promedio": r1(sum(ant) / len(ant)) if ant else None, "p95": p(ant, .95), "max": max(ant) if ant else None},
+                   "deteccion_p95_ms_auditoria": r1(p(dms, .95)), "recuperacion_p95_ms_medida_independiente": r1(p(r_i, .95)),
+                   "recuperacion_p95_ms_interna_auditoria": r1(p(r_a, .95)), "n_recuperaciones_medidas": len(r_i),
+                   "S1_cumple_auditoria": None if not dms else p(dms, .95) <= LIM_DET,
+                   "S2_cumple": None if not (r_i or r_a) else p(r_i if r_i else r_a, .95) <= LIM_REC}
+todos_tipos_detectados = bool(por_tipo) and all(v["todos_detectados"] for v in por_tipo.values())
+
 # ---------- 5) tráfico legítimo durante las ventanas de recuperación
 def en_ventana(t): return any(i <= t <= f for i, f in ventanas_rec)
 trafico = {}
@@ -145,6 +183,15 @@ try:
                     "cola_alerta_max": q(f"max_over_time(max(taq_cola_alerta_profundidad)[{wv}s:2s])", f),
                     "eventos_descartados": q(f"sum(increase(taq_eventos_trafico_descartados_total[{wv}s]))", f),
                     "rechazos_cuenta_revocada": q(f"sum(increase(taq_rechazos_cuenta_revocada_total[{wv}s]))", f)}
+    fin_t = VENT["pico"][1] + 25000; w_t = int((fin_t - VENT["normal"][0]) / 1000)
+    prom["por_tipo"] = {}
+    for t in tipos_inyectados:
+        dp = q(f'histogram_quantile(0.95, sum(increase(taq_deteccion_seconds_bucket{{tipo="{t}"}}[{w_t}s])) by (le))', fin_t)
+        rp = q(f'histogram_quantile(0.95, sum(increase(taq_recuperacion_seconds_bucket{{tipo="{t}"}}[{w_t}s])) by (le))', fin_t)
+        prom["por_tipo"][t] = {"deteccion_p95_ms": r1(dp * 1000) if dp is not None else None, "recuperacion_p95_ms": r1(rp * 1000) if rp is not None else None,
+                               "marcas_por_tipo_total": q(f'sum(taq_ataques_detectados_total{{tipo="{t}"}})', fin_t)}
+        por_tipo[t]["deteccion_p95_ms_prometheus"] = prom["por_tipo"][t]["deteccion_p95_ms"]
+        por_tipo[t]["recuperacion_p95_ms_prometheus"] = prom["por_tipo"][t]["recuperacion_p95_ms"]
     prom["sospechosas_total"] = q("sum(taq_cuentas_sospechosas_total)", VENT["pico"][1] + 25000)
     # Series completas de la corrida como evidencia (junto al tablero de Grafana)
     (carp / "prometheus").mkdir(exist_ok=True)
@@ -177,14 +224,16 @@ criterios = {
     "cuentas_legitimas_revocadas_0": resumen["revocadas_postgres_otras"] == 0 and legit_revocados == 0,
     "asientos_de_bots_retenidos_al_final_0": len(bloq_bots) == 0,
     "asientos_liberados_igual_a_los_obtenidos": liberados_aud == asientos_obtenidos,
-    "ordenes_canceladas_igual_a_los_obtenidos": resumen["ordenes_canceladas_bots"] == asientos_obtenidos,
+    "ordenes_canceladas_igual_a_los_obtenidos": resumen["ordenes_canceladas_bots"] == ordenes_obtenidas,
     "cuentas_revocadas_igual_a_bots": resumen["revocadas_postgres_bots"] == bots_total and resumen["revocadas_redis"] >= bots_total,
+    "todos_los_ataques_de_cada_tipo_detectados": todos_tipos_detectados,
     "S1_p95_dentro_del_limite": all(V[fz]["S1_cumple"] for fz in V if V[fz]["S1_cumple"] is not None) and any(V[fz]["S1_cumple"] is not None for fz in V),
     "S2_p95_dentro_del_limite": all(V[fz]["S2_cumple"] for fz in V if V[fz]["S2_cumple"] is not None) and any(V[fz]["S2_cumple"] is not None for fz in V),
 }
 out = {"carpeta": str(carp), "limites_ms": {"S1": LIM_DET, "S2": LIM_REC}, "ataques": n_ataques, "bots": bots_total,
-       "solicitudes_de_bots": sum(len(l) for l in bots.values()), "asientos_obtenidos_por_bots": asientos_obtenidos,
-       "por_ataque": por_ataque, "solicitudes_fraudulentas_antes_de_la_marca": {"promedio": r1(sum(antes_marca) / len(antes_marca)) if antes_marca else None,
+       "solicitudes_de_bots": sum(len(l) for l in bots.values()), "asientos_obtenidos_por_bots": asientos_obtenidos, "ordenes_obtenidas_por_bots": ordenes_obtenidas,
+       "por_ataque": por_ataque, "tipos_de_ataque": {"nota": "el tipo lo declara el generador (etiqueta tipoAtacante); no hay clasificador", "por_tipo": por_tipo},
+       "solicitudes_fraudulentas_antes_de_la_marca": {"promedio": r1(sum(antes_marca) / len(antes_marca)) if antes_marca else None,
        "p95": p(antes_marca, .95), "max": max(antes_marca) if antes_marca else None},
        "compradores_legitimos_marcados": legit_marcados, "asientos_liberados_auditoria": liberados_aud, "resumen_respuesta": resumen,
        "asientos_de_bots_aun_bloqueados": len(bloq_bots), "veredictos_por_fase": V, "prometheus": prom, "trafico_legitimo": trafico,
@@ -205,14 +254,22 @@ for fz, v in V.items():
     L.append(f"| {fz} | {f1(v['S1_deteccion_p95_ms_prometheus'])} ms {mk(v['S1_cumple'])} | {f1(v['S1_deteccion_p95_ms_auditoria'])} ms | "
              f"{f1(v['S2_recuperacion_p95_ms_medida_independiente'])} ms {mk(v['S2_cumple'])} | {f1(v['S2_recuperacion_p95_ms_interna_auditoria'])} ms | {f1(v['S2_recuperacion_p95_ms_prometheus'])} ms |")
 L += ["", "La detección de Prometheus incluye el INSERT en bd_auditoria; la de la auditoría resta el instante previo al INSERT (por eso es algo menor).", ""]
-L += ["## Ataques", "", "| Ataque | Fase | Bots | Marcados | Detectado | Completo |", "|---|---|---|---|---|---|"]
-for x in por_ataque: L.append(f"| {x['id']} | {x['fase']} | {x['bots_que_enviaron']} | {x['bots_marcados']} | {mk(x['detectado'])} | {mk(x['completo'])} |")
+L += ["## Tipos de ataque", "", "El tipo lo **declara el generador** con la etiqueta `tipoAtacante` (no hay clasificador): esta tabla comprueba que cada tipo etiquetado se detectó con la regla esperada y mide S-1 y S-2 por tipo.", "",
+      "| Tipo | Ataques (detectados / inyectados) | Cuentas (marcadas / inyectadas) | Regla que disparó cada marca | Etiqueta en auditoría coincide | Solicitudes antes de la marca (prom / p95 / máx) | Detección p95 (auditoría / Prometheus) | Recuperación p95 (independiente / interna / Prometheus) |", "|---|---|---|---|---|---|---|---|"]
+for t, v in por_tipo.items():
+    sf = v["solicitudes_fraudulentas_antes_de_la_marca"]
+    L.append(f"| {t} | {v['ataques_detectados']} / {v['ataques_inyectados']} {mk(v['todos_detectados'])} | {v['actores_marcados']} / {v['actores_inyectados']} | {', '.join(f'{r}={n}' for r, n in v['reglas'].items()) or '-'} | {v['etiqueta_en_auditoria_coincide']} / {v['actores_marcados']} | "
+             f"{f1(sf['promedio'])} / {f1(sf['p95'])} / {f1(sf['max'])} | {f1(v['deteccion_p95_ms_auditoria'])} ms {mk(v['S1_cumple_auditoria'])} / {f1(v.get('deteccion_p95_ms_prometheus'))} ms | "
+             f"{f1(v['recuperacion_p95_ms_medida_independiente'])} ms {mk(v['S2_cumple'])} / {f1(v['recuperacion_p95_ms_interna_auditoria'])} ms / {f1(v.get('recuperacion_p95_ms_prometheus'))} ms |")
+L += ["", f"Compradores legítimos marcados: {len(legit_marcados)} (cuentas legítimas observadas: {len(legit_cuentas)}).", ""]
+L += ["## Ataques", "", "| Ataque | Fase | Tipo | Bots | Marcados | Detectado | Completo |", "|---|---|---|---|---|---|---|"]
+for x in por_ataque: L.append(f"| {x['id']} | {x['fase']} | {x['tipo']} | {x['bots_que_enviaron']} | {x['bots_marcados']} | {mk(x['detectado'])} | {mk(x['completo'])} |")
 sa = out["solicitudes_fraudulentas_antes_de_la_marca"]
 L += ["", "## Datos adicionales", "",
       f"- Solicitudes fraudulentas por bot que pasaron antes de la marca: promedio {f1(sa['promedio'])}, p95 {f1(sa['p95'])}, máx {f1(sa['max'])}.",
       f"- Compradores legítimos marcados: {len(legit_marcados)} {legit_marcados[:5] or ''}; legítimos con respuesta CUENTA_REVOCADA: {legit_revocados}; errores técnicos de legítimos: {legit_errores}.",
       f"- Asientos obtenidos por bots {asientos_obtenidos} · liberados (auditoría) {liberados_aud} · aún bloqueados al final {len(bloq_bots)}.",
-      f"- Órdenes canceladas (bots / otras): {resumen['ordenes_canceladas_bots']} / {resumen['ordenes_canceladas_otras']} · cuentas revocadas Postgres (bots / otras): {resumen['revocadas_postgres_bots']} / {resumen['revocadas_postgres_otras']} · Redis: {resumen['revocadas_redis']}.",
+      f"- Órdenes obtenidas por bots {ordenes_obtenidas} · canceladas (bots / otras): {resumen['ordenes_canceladas_bots']} / {resumen['ordenes_canceladas_otras']} · cuentas revocadas Postgres (bots / otras): {resumen['revocadas_postgres_bots']} / {resumen['revocadas_postgres_otras']} · Redis: {resumen['revocadas_redis']}.",
       f"- Medida independiente de recuperación: {'sí' if medida else 'NO (falta recuperacion_medida.json)'}; seguimientos sin completar: {incompletas}.", "",
       "## Tráfico legítimo (p95 de reservar, bitácora del generador)", "", "| Fase | Durante recuperaciones (n) | p95 durante | Fuera de recuperaciones (n) | p95 fuera |", "|---|---|---|---|---|"]
 for fz, t in trafico.items():

@@ -32,6 +32,7 @@ def rnd = props.get('taq.rnd') as Random
 long ttlS = (props.getProperty('ttl_s') ?: '480') as long
 
 boolean ipSim = props.get('taq.ipSim') as boolean
+boolean hayAtaques = props.get('taq.hayAtaques') as boolean
 // EXP-3: IP simulada de un comprador legítimo (una por comprador, derivada de c<n>); los bots traen la suya en el evento.
 def ipDe = { Map e ->
     if (e.ip) return e.ip as String
@@ -56,7 +57,7 @@ def enviar = { String ruta, Map cuerpo, String ip = '' ->
 def anotar = { Map e, Map x ->
     String linea = [e.solicitud, e.tipo, e.grupo ?: '', e.comprador, e.asientos.join('-'), x.ini, x.fin, x.http,
                     x.r.resultado ?: '', x.r.motivo ?: '', x.r.bloqueadoEn ?: '', e.esperado ?: '',
-                    (x.ini - t0) / 1000.0, retrasoMs].join(',') + (ipSim ? ',' + ipDe(e) : '')
+                    (x.ini - t0) / 1000.0, retrasoMs].join(',') + (ipSim ? ',' + ipDe(e) : '') + (hayAtaques ? ',' + (e.tipoAtaque ?: '') : '')
     synchronized (bit) { bit.writeLine(linea); bit.flush() }
 }
 String etiqueta = ev.tipo == 'CONFIRMAR' ? 'confirmar' : 'reservar'
@@ -79,18 +80,21 @@ if (ev.tipo == 'CONF_VENDIDO') {
 if (ev.barrera != null) { try { (ev.barrera as CyclicBarrier).await(3, TimeUnit.SECONDS) } catch (Exception ignorada) {} }
 
 SampleResult.sampleStart()
-def x = enviar('/api/reservar', [solicitudId: ev.solicitud, comprador: ev.comprador, evento: 1, asientos: ev.asientos], ipDe(ev))
+// EXP-3: los atacantes DECLARAN su tipo con la etiqueta tipoAtacante (el tráfico legítimo no la lleva); el detector solo la copia a la evidencia y a las métricas.
+def cuerpoReserva = [solicitudId: ev.solicitud, comprador: ev.comprador, evento: 1, asientos: ev.asientos]
+if (ev.tipoAtaque) cuerpoReserva.tipoAtacante = ev.tipoAtaque
+def x = enviar('/api/reservar', cuerpoReserva, ipDe(ev))
 anotar(ev, x)
 String res = x.r.resultado
 
-// EXP-3: un bot sigue enviando una reserva cada periodo (~10/min) de un asiento fresco, hasta que lo revocan (403) o se acaban sus asientos.
+// EXP-3: un atacante (bot, cuenta de granja o acaparador) sigue enviando una reserva cada periodo, con los asientos que le tocan, hasta que lo revocan (403) o se acaban sus asientos.
 if (ev.tipo == 'ATAQUE_BOT') {
     boolean revocado = x.http == 403 || res == 'CUENTA_REVOCADA'
     int n = (ev.n as int) + 1
     long ts = (ev.t as long) + (ev.periodoMs as long)
     if (!revocado && n < (ev.botSeats as List).size() && ts <= finSeg)
-        cola.add([t: ts, tipo: 'ATAQUE_BOT', grupo: ev.grupo, solicitud: 'S' + idSolic.incrementAndGet(), comprador: ev.comprador, ip: ev.ip,
-                  asientos: [(ev.botSeats as List)[n]], botSeats: ev.botSeats, n: n, periodoMs: ev.periodoMs, esperado: 'ATAQUE'])
+        cola.add([t: ts, tipo: 'ATAQUE_BOT', tipoAtaque: ev.tipoAtaque, grupo: ev.grupo, solicitud: 'S' + idSolic.incrementAndGet(), comprador: ev.comprador, ip: ev.ip,
+                  asientos: (ev.botSeats as List)[n], botSeats: ev.botSeats, n: n, periodoMs: ev.periodoMs, esperado: 'ATAQUE'])
     SampleResult.setSuccessful(true)       // los bots no cuentan como errores de la carga
     SampleResult.setResponseCode(String.valueOf(x.http))
     return res

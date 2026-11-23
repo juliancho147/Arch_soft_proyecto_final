@@ -123,14 +123,14 @@ spec:
           ports: [{ name: http, containerPort: 8080 }]
           env:
             - { name: TAQ_ROLE, value: "bloqueo" }
-            - { name: JAVA_OPTS, value: "-Xmx256m -XX:+UseG1GC" }
+            - { name: JAVA_OPTS, value: "-Xmx768m -XX:+UseG1GC" }
             - { name: TAQ_REDIS_URL, value: "redis://redis:6379" }
             - { name: TAQ_BLOQUEO_URL, value: "http://bd-bloqueo:8080" }
             - { name: TAQ_RESERVA_URL, value: "http://nodo-reserva:8080" }
             - { name: TAQ_PASARELA_URL, value: "http://nodo-pasarela:8080" }
             - { name: TAQ_DB_URL, value: "jdbc:postgresql://postgres:5432/taq" }
           readinessProbe: { httpGet: { path: /actuator/health, port: http }, initialDelaySeconds: 15, periodSeconds: 3 }
-          resources: { requests: { cpu: 1000m, memory: 384Mi }, limits: { cpu: "2", memory: 512Mi } }
+          resources: { requests: { cpu: 600m, memory: 384Mi }, limits: { cpu: "2", memory: 1280Mi } }
 ---
 apiVersion: v1
 kind: Service

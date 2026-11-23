@@ -1,0 +1,17 @@
+# Fuente de datos pequeña para el "reporte de seguridad" del tablero de EXP-3: Grafana lee bd_auditoria (el Postgres que ya existe).
+# Sin componentes nuevos: se carga con el sidecar de Grafana (etiqueta grafana_datasource) y solo consulta cuando el tablero está abierto.
+apiVersion: v1
+kind: ConfigMap
+metadata: { name: taq-ds-seguridad, namespace: monitoring, labels: { grafana_datasource: "1" } }
+data:
+  seguridad.yaml: |
+    apiVersion: 1
+    datasources:
+      - name: Seguridad (bd_auditoria)
+        uid: pgseg
+        type: grafana-postgresql-datasource
+        access: proxy
+        url: postgres.taq.svc:5432
+        user: taq
+        secureJsonData: { password: taq }
+        jsonData: { database: taq, sslmode: disable, postgresVersion: 1600, timescaledb: false, maxOpenConns: 2, maxIdleConns: 1, connMaxLifetime: 600 }

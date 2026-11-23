@@ -101,7 +101,7 @@ public class GatewayController {
                 eventos.contarRechazo();
                 return ResponseEntity.status(403).body(Map.of("resultado", "CUENTA_REVOCADA"));
             }
-            eventos.publicar("reservar", req, cuenta, cuerpo.get("asientos"), id);
+            eventos.publicar("reservar", req, cuenta, cuerpo.get("asientos"), id, cuerpo.get("tipoAtacante"));
         }
         String resultado = "ERROR";
         int http = 200;

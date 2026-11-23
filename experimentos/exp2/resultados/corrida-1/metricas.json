@@ -1,0 +1,90 @@
+{
+  "ventanas": {
+    "pico_inicio": 1795377870.534,
+    "pico_fin": 1795378440.534
+  },
+  "desfase_reloj_prometheus_s": 0.1,
+  "replicas": {
+    "nodo-entrada": {
+      "maximo": 2,
+      "final": 2,
+      "ultimo_cambio_s": 75
+    },
+    "nodo-pasarela": {
+      "maximo": 2,
+      "final": 1,
+      "ultimo_cambio_s": 615
+    },
+    "nodo-reserva": {
+      "maximo": 2,
+      "final": 2,
+      "ultimo_cambio_s": 75
+    }
+  },
+  "equilibrio_desde_s": 615,
+  "p95_pico_completo_ms": 7.337702519944139,
+  "p95_tras_equilibrio_ms": null,
+  "pct_bajo_200ms_pico": 100.0,
+  "pct_bajo_300ms_pico": 100.0,
+  "solicitudes_en_pico": 166265.852,
+  "solicitudes_por_min_en_pico": 17501.66863157895,
+  "rechazos_cola_llena_total": 0.0,
+  "errores_tecnicos": 0,
+  "hilo_unico": {
+    "ops_s_max": 602.36,
+    "ops_s_prom": 407.22397741449277,
+    "ocupado_pct_max": 0.9408191720000001,
+    "cola_operacion_max": 1.0
+  },
+  "cliente": {
+    "p95_pico_ms": 12,
+    "solicitudes_pico": 148251,
+    "retraso_generador_p95_ms": 2
+  },
+  "valida": true,
+  "asr_e1_cumple": true,
+  "fases": {
+    "pico8k": {
+      "desde_s": 30.0,
+      "hasta_s": 120.0,
+      "p95_ms": 9.557586822863184,
+      "pct_bajo_200ms": 100.0,
+      "pct_bajo_300ms": 100.0,
+      "solicitudes_por_min": 7859.895294117648,
+      "errores_tecnicos": 0,
+      "replicas_max": {
+        "nodo-entrada": 2,
+        "nodo-pasarela": 1,
+        "nodo-reserva": 2
+      }
+    },
+    "ascenso": {
+      "desde_s": 120.0,
+      "hasta_s": 360.0,
+      "p95_ms": 6.517024320457799,
+      "pct_bajo_200ms": 100.0,
+      "pct_bajo_300ms": 100.0,
+      "solicitudes_por_min": 14826.893617021276,
+      "errores_tecnicos": 0,
+      "replicas_max": {
+        "nodo-entrada": 2,
+        "nodo-pasarela": 2,
+        "nodo-reserva": 2
+      }
+    },
+    "meseta20k": {
+      "desde_s": 360.0,
+      "hasta_s": 600.0,
+      "p95_ms": 7.24497278500151,
+      "pct_bajo_200ms": 100.0,
+      "pct_bajo_300ms": 100.0,
+      "solicitudes_por_min": 23853.702127659573,
+      "errores_tecnicos": 0,
+      "replicas_max": {
+        "nodo-entrada": 2,
+        "nodo-pasarela": 2,
+        "nodo-reserva": 2
+      }
+    }
+  }
+}

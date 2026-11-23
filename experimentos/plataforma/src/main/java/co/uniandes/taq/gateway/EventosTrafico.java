@@ -81,12 +81,18 @@ public class EventosTrafico {
 
     /** Fire-and-forget: no bloquea la solicitud del comprador ni propaga errores de Redis. */
     public void publicar(String ruta, HttpServletRequest req, String cuenta, Object asientos, String solicitudId) {
+        publicar(ruta, req, cuenta, asientos, solicitudId, null);
+    }
+
+    /** tipoAtacante: etiqueta que el generador del experimento declara en la solicitud (null si no viene; el tráfico legítimo no la lleva). */
+    public void publicar(String ruta, HttpServletRequest req, String cuenta, Object asientos, String solicitudId, Object tipoAtacante) {
         if (profundidad >= colaMax || enVuelo.get() >= vueloMax) { descartados.increment(); return; }
         try {
             String[] ip = ip(req);
             Map<String, Object> e = new LinkedHashMap<>();
             e.put("ts_ms", System.currentTimeMillis()); e.put("ip", ip[0]); e.put("ip_fuente", ip[1]);
             e.put("cuenta", cuenta); e.put("ruta", ruta); e.put("asientos", asientos); e.put("solicitudId", solicitudId);
+            if (tipoAtacante != null) e.put("tipo_atacante", String.valueOf(tipoAtacante));
             enVuelo.incrementAndGet();
             escritura.async().lpush(COLA, Json.a(e)).whenComplete((r, ex) -> enVuelo.decrementAndGet());
             publicados.increment();

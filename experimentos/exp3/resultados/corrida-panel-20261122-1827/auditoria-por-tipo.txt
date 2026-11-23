@@ -1,0 +1,8 @@
+      tipo      |       regla       | marcas | p95_deteccion_ms 
+----------------+-------------------+--------+------------------
+ acaparador     | cuenta_asientos   |    140 |              1.0
+ bot_individual | cuenta_frecuencia |    400 |              1.0
+ granja_cuentas | ip_frecuencia     |     80 |              5.0
+ granja_cuentas | ip_marcada        |    320 |              1.0
+(4 rows)
+

@@ -1,0 +1,257 @@
+{
+ "carpeta": "/Users/julianbuiles/Library/CloudStorage/OneDrive-Personal/Documentos/UniAndes/Maestria Arquitectura/Materias/Arquitectura de Software/Reto 4/experimentos/exp3/resultados/corrida-0",
+ "limites_ms": {
+  "S1": 100.0,
+  "S2": 300.0
+ },
+ "ataques": 5,
+ "bots": 248,
+ "solicitudes_de_bots": 584,
+ "asientos_obtenidos_por_bots": 384,
+ "ordenes_obtenidas_por_bots": 336,
+ "por_ataque": [
+  {
+   "id": "A1",
+   "fase": "normal",
+   "bots_que_enviaron": 100,
+   "bots_marcados": 100,
+   "detectado": true,
+   "completo": true,
+   "tipo": "granja_cuentas"
+  },
+  {
+   "id": "A2",
+   "fase": "normal",
+   "bots_que_enviaron": 8,
+   "bots_marcados": 8,
+   "detectado": true,
+   "completo": true,
+   "tipo": "acaparador"
+  },
+  {
+   "id": "A3",
+   "fase": "normal",
+   "bots_que_enviaron": 20,
+   "bots_marcados": 20,
+   "detectado": true,
+   "completo": true,
+   "tipo": "bot_individual"
+  },
+  {
+   "id": "A4",
+   "fase": "pico",
+   "bots_que_enviaron": 20,
+   "bots_marcados": 20,
+   "detectado": true,
+   "completo": true,
+   "tipo": "bot_individual"
+  },
+  {
+   "id": "A5",
+   "fase": "pico",
+   "bots_que_enviaron": 100,
+   "bots_marcados": 100,
+   "detectado": true,
+   "completo": true,
+   "tipo": "granja_cuentas"
+  }
+ ],
+ "tipos_de_ataque": {
+  "nota": "el tipo lo declara el generador (etiqueta tipoAtacante); no hay clasificador",
+  "por_tipo": {
+   "bot_individual": {
+    "ataques_inyectados": 2,
+    "ataques_detectados": 2,
+    "todos_detectados": true,
+    "actores_inyectados": 40,
+    "actores_marcados": 40,
+    "reglas": {
+     "cuenta_frecuencia": 40
+    },
+    "etiqueta_en_auditoria_coincide": 40,
+    "solicitudes_fraudulentas_antes_de_la_marca": {
+     "promedio": 3.0,
+     "p95": 3.0,
+     "max": 3
+    },
+    "deteccion_p95_ms_auditoria": 1.0,
+    "recuperacion_p95_ms_medida_independiente": 27.05,
+    "recuperacion_p95_ms_interna_auditoria": 11.2,
+    "n_recuperaciones_medidas": 40,
+    "S1_cumple_auditoria": true,
+    "S2_cumple": true,
+    "deteccion_p95_ms_prometheus": 2.95,
+    "recuperacion_p95_ms_prometheus": 13.75
+   },
+   "granja_cuentas": {
+    "ataques_inyectados": 2,
+    "ataques_detectados": 2,
+    "todos_detectados": true,
+    "actores_inyectados": 200,
+    "actores_marcados": 200,
+    "reglas": {
+     "ip_frecuencia": 40,
+     "ip_marcada": 160
+    },
+    "etiqueta_en_auditoria_coincide": 200,
+    "solicitudes_fraudulentas_antes_de_la_marca": {
+     "promedio": 1.0,
+     "p95": 1.0,
+     "max": 1
+    },
+    "deteccion_p95_ms_auditoria": 4.0,
+    "recuperacion_p95_ms_medida_independiente": 176.0,
+    "recuperacion_p95_ms_interna_auditoria": 159.0,
+    "n_recuperaciones_medidas": 200,
+    "S1_cumple_auditoria": true,
+    "S2_cumple": true,
+    "deteccion_p95_ms_prometheus": 12.75,
+    "recuperacion_p95_ms_prometheus": 175.0
+   },
+   "acaparador": {
+    "ataques_inyectados": 1,
+    "ataques_detectados": 1,
+    "todos_detectados": true,
+    "actores_inyectados": 8,
+    "actores_marcados": 8,
+    "reglas": {
+     "cuenta_asientos": 8
+    },
+    "etiqueta_en_auditoria_coincide": 8,
+    "solicitudes_fraudulentas_antes_de_la_marca": {
+     "promedio": 2.0,
+     "p95": 2.0,
+     "max": 2
+    },
+    "deteccion_p95_ms_auditoria": 1.65,
+    "recuperacion_p95_ms_medida_independiente": 21.75,
+    "recuperacion_p95_ms_interna_auditoria": 11.6,
+    "n_recuperaciones_medidas": 6,
+    "S1_cumple_auditoria": true,
+    "S2_cumple": true,
+    "deteccion_p95_ms_prometheus": 6.2,
+    "recuperacion_p95_ms_prometheus": 13.0
+   }
+  }
+ },
+ "solicitudes_fraudulentas_antes_de_la_marca": {
+  "promedio": 1.35,
+  "p95": 3.0,
+  "max": 3
+ },
+ "compradores_legitimos_marcados": [],
+ "asientos_liberados_auditoria": 384,
+ "resumen_respuesta": {
+  "revocadas_redis": 248,
+  "marcadas_redis": 248,
+  "revocadas_postgres_bots": 248,
+  "revocadas_postgres_otras": 0,
+  "ordenes_canceladas_bots": 336,
+  "ordenes_canceladas_otras": 0,
+  "marcas_bots": 248,
+  "marcas_otras": 0
+ },
+ "asientos_de_bots_aun_bloqueados": 0,
+ "veredictos_por_fase": {
+  "normal": {
+   "S1_deteccion_p95_ms_prometheus": 13.65,
+   "S1_deteccion_p95_ms_auditoria": 4.0,
+   "S1_cumple": true,
+   "S2_recuperacion_p95_ms_medida_independiente": 176.0,
+   "S2_recuperacion_p95_ms_interna_auditoria": 159.0,
+   "S2_recuperacion_p95_ms_prometheus": 184.0,
+   "S2_cumple": true,
+   "n_detecciones_auditoria": 128,
+   "n_recuperaciones_medidas": 126
+  },
+  "pico": {
+   "S1_deteccion_p95_ms_prometheus": 4.6,
+   "S1_deteccion_p95_ms_auditoria": 2.0,
+   "S1_cumple": true,
+   "S2_recuperacion_p95_ms_medida_independiente": 25.0,
+   "S2_recuperacion_p95_ms_interna_auditoria": 17.0,
+   "S2_recuperacion_p95_ms_prometheus": 18.57,
+   "S2_cumple": true,
+   "n_detecciones_auditoria": 120,
+   "n_recuperaciones_medidas": 120
+  }
+ },
+ "prometheus": {
+  "normal": {
+   "deteccion_p95_ms": 13.65,
+   "detecciones": 133.304,
+   "deteccion_pct_le_100ms": 100.0,
+   "recuperacion_p95_ms": 184.0,
+   "recuperaciones": 134.2016,
+   "recuperacion_pct_le_300ms": 100.0,
+   "cola_evento_trafico_max": 0.0,
+   "cola_operacion_max": 0.0,
+   "cola_alerta_max": 0.0,
+   "eventos_descartados": 0.0,
+   "rechazos_cuenta_revocada": 0.0
+  },
+  "pico": {
+   "deteccion_p95_ms": 4.6,
+   "detecciones": 129.23076923076923,
+   "deteccion_pct_le_100ms": 100.0,
+   "recuperacion_p95_ms": 18.57,
+   "recuperaciones": 129.23076923076923,
+   "recuperacion_pct_le_300ms": 100.0,
+   "cola_evento_trafico_max": 0.0,
+   "cola_operacion_max": 0.0,
+   "cola_alerta_max": 0.0,
+   "eventos_descartados": 0.0,
+   "rechazos_cuenta_revocada": 36.0
+  },
+  "por_tipo": {
+   "bot_individual": {
+    "deteccion_p95_ms": 2.95,
+    "recuperacion_p95_ms": 13.75,
+    "marcas_por_tipo_total": 40.0
+   },
+   "granja_cuentas": {
+    "deteccion_p95_ms": 12.75,
+    "recuperacion_p95_ms": 175.0,
+    "marcas_por_tipo_total": 200.0
+   },
+   "acaparador": {
+    "deteccion_p95_ms": 6.2,
+    "recuperacion_p95_ms": 13.0,
+    "marcas_por_tipo_total": 8.0
+   }
+  },
+  "sospechosas_total": 248.0
+ },
+ "trafico_legitimo": {
+  "normal": {
+   "n_durante_recuperacion": 106,
+   "p95_durante_recuperacion_ms": 17.0,
+   "n_fuera": 304,
+   "p95_fuera_ms": 25.0
+  },
+  "pico": {
+   "n_durante_recuperacion": 598,
+   "p95_durante_recuperacion_ms": 11.0,
+   "n_fuera": 837,
+   "p95_fuera_ms": 11.0
+  }
+ },
+ "legitimos_con_cuenta_revocada": 0,
+ "legitimos_con_error_tecnico": 0,
+ "recuperaciones_no_completadas_en_medicion": 2,
+ "hay_medida_independiente": true,
+ "criterios": {
+  "todos_los_ataques_detectados": true,
+  "todos_los_bots_marcados": true,
+  "compradores_legitimos_marcados_0": true,
+  "cuentas_legitimas_revocadas_0": true,
+  "asientos_de_bots_retenidos_al_final_0": true,
+  "asientos_liberados_igual_a_los_obtenidos": true,
+  "ordenes_canceladas_igual_a_los_obtenidos": true,
+  "cuentas_revocadas_igual_a_bots": true,
+  "todos_los_ataques_de_cada_tipo_detectados": true,
+  "S1_p95_dentro_del_limite": true,
+  "S2_p95_dentro_del_limite": true
+ },
+ "cumple_todo": true
+}

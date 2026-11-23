@@ -2,15 +2,16 @@
 """Genera los manifiestos de EXP-3 para EKS (solo los genera; no despliega nada).
 Uso: ECR=<cuenta>.dkr.ecr.us-east-1.amazonaws.com python3 generar_exp3.py
 
-  10-plataforma-exp3.yaml  : nodo-entrada y bd-bloqueo con la imagen 1.1 y TAQ_DETECCION=on (el resto de la plataforma no cambia)
-  20-deteccion-respuesta.yaml : pods nuevos 'deteccion' y 'respuesta' (misma imagen 1.1, nodo del grupo 'sistema')
+  10-plataforma-exp3.yaml  : nodo-entrada y bd-bloqueo con la imagen taq-plataforma:$TAG (1.3) y TAQ_DETECCION=on (el resto de la plataforma no cambia)
+  20-deteccion-respuesta.yaml : pods nuevos 'deteccion' y 'respuesta' (misma imagen $TAG, nodo del grupo 'sistema')
 
 Los pods llevan el label taq-metricas: "true" y el puerto http 8080, así que el PodMonitor de EXP-2 los descubre sin cambios.
 Para volver a EXP-1/EXP-2: kubectl apply -f ../../../exp2/aws/k8s/10-plataforma.yaml (imagen 1.0, sin TAQ_DETECCION) y borrar los dos pods nuevos."""
 import os, pathlib
 ECR = os.environ.get("ECR", "<ECR>")
 AQUI = pathlib.Path(__file__).parent
-IMG = f"{ECR}/taq-plataforma:1.1"
+TAG = os.environ.get("TAG", "1.3")            # etiqueta de la imagen (la define activar-exp3.sh; 1.3 = marca y recuperación en lote)
+IMG = f"{ECR}/taq-plataforma:{TAG}"
 ENV_COMUN = """            - { name: TAQ_REDIS_URL, value: "redis://redis:6379" }
             - { name: TAQ_BLOQUEO_URL, value: "http://bd-bloqueo:8080" }
             - { name: TAQ_RESERVA_URL, value: "http://nodo-reserva:8080" }
@@ -18,7 +19,7 @@ ENV_COMUN = """            - { name: TAQ_REDIS_URL, value: "redis://redis:6379" 
             - { name: TAQ_DB_URL, value: "jdbc:postgresql://postgres:5432/taq" }"""
 
 def despliegue(nombre, rol, heap, cpu_req, cpu_lim, mem_lim, rol_nodo, extra_env="", antiafin=False):
-    # Misma plantilla que exp2/aws/k8s/generar.py, con la imagen 1.1.
+    # Misma plantilla que exp2/aws/k8s/generar.py, con la imagen $TAG.
     spread = """      topologySpreadConstraints:
         - { maxSkew: 1, topologyKey: kubernetes.io/hostname, whenUnsatisfiable: ScheduleAnyway, labelSelector: { matchLabels: { app: %s } } }
 """ % nombre if antiafin else ""
@@ -53,10 +54,13 @@ spec: {{ selector: {{ app: {nombre} }}, ports: [{{ name: http, port: 8080, targe
 ---
 """
 
-ON = '            - { name: TAQ_DETECCION, value: "on" }\n'
+# SERVER_FORWARDHEADERSSTRATEGY=NONE: en Kubernetes Spring Boot activa por defecto el manejo nativo de X-Forwarded-For (Tomcat RemoteIpValve),
+# que reemplaza la IP remota por la del encabezado y BORRA el encabezado: la IP simulada llegaría marcada como "remota" y la regla por IP no se aplicaría.
+ON = ('            - { name: TAQ_DETECCION, value: "on" }\n'
+      '            - { name: SERVER_FORWARDHEADERSSTRATEGY, value: "NONE" }\n')
 # Gateway y bd_bloqueo: mismos recursos que en EXP-2, ahora con detección encendida.
 base = despliegue("nodo-entrada", "gateway", 320, "500m", 2, "640Mi", "app", extra_env=ON, antiafin=True)
-base += despliegue("bd-bloqueo", "bloqueo", 256, "1000m", 2, "512Mi", "sistema", extra_env=ON)
+base += despliegue("bd-bloqueo", "bloqueo", 768, "600m", 2, "1280Mi", "sistema", extra_env=ON)
 (AQUI / "10-plataforma-exp3.yaml").write_text(base.rstrip("-\n") + "\n")
 
 # Pods nuevos. Detector: 4 hilos de consumo (cada uno con su conexión a Redis y Postgres). Respuesta: 4 hilos.

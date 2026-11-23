@@ -24,14 +24,10 @@ def linea(v, nombre): return {"expr": f"vector({v})", "legendFormat": nombre}
 P95 = 'histogram_quantile(0.95, sum(rate(taq_reservar_seconds_bucket[{w}])) by (le))'
 y = 0
 row("E-1  Reservar en el pico: p95 < 250 ms sostenido 15 min", y); y += 1
-add("stat", "p95 de reservar (último minuto)", 0, y, 4, 6, [{"expr": P95.format(w="1m"), "instant": True}], "s",
+add("stat", "p95 de reservar (último minuto)", 0, y, 6, 6, [{"expr": P95.format(w="1m"), "instant": True}], "s",
     "Verde = cumple E-1 (< 250 ms). Medido en el gateway con todas las réplicas.", sobreumbral(LIM), {"decimals": 3}, last)
-add("stat", "Solicitudes/s ahora", 4, y, 4, 6, [{"expr": "sum(rate(taq_reservar_seconds_count[30s]))", "instant": True}], "reqps",
-    "Objetivo del pico: ≈133 solicitudes/s (8.000/min).", [{"color": "blue", "value": None}], {"decimals": 0}, last)
-add("stat", "Solicitudes recibidas en el rango", 8, y, 4, 6, [{"expr": "sum(taq_reservar_seconds_count) - (sum(taq_reservar_seconds_count offset $__range) or vector(0))", "instant": True}], "short", "", [{"color": "blue", "value": None}], {"decimals": 0}, last)
-add("stat", "Rechazos por cola llena", 12, y, 4, 6, [{"expr": "(sum(taq_rechazos_cola_llena_total) or vector(0)) - (sum(taq_rechazos_cola_llena_total offset $__range) or vector(0))", "instant": True}], "short",
-    "Solicitudes que no cupieron en la cola acotada. E-1 pide no perder solicitudes: lo esperado es 0.", [{"color": "green", "value": None}, {"color": "red", "value": 1}], None, last)
-add("timeseries", "p95 de reservar vs. límite del ASR (250 ms)", 16, y, 8, 6,
+add("stat", "Solicitudes recibidas en el rango", 6, y, 6, 6, [{"expr": "sum(taq_reservar_seconds_count) - (sum(taq_reservar_seconds_count offset $__range) or vector(0))", "instant": True}], "short", "", [{"color": "blue", "value": None}], {"decimals": 0}, last)
+add("timeseries", "p95 de reservar vs. límite del ASR (250 ms)", 12, y, 12, 6,
     [{"expr": P95.format(w="30s"), "legendFormat": "p95 reservar"}, linea(LIM, "límite ASR 250 ms")], "s"); y += 6
 add("timeseries", "Solicitudes por segundo vs. objetivo del pico (rampa y meseta)", 0, y, 12, 7,
     [{"expr": "sum(rate(taq_reservar_seconds_count[30s]))", "legendFormat": "solicitudes/s"}, linea(round(OBJ, 1), "objetivo pico 133/s"),
@@ -50,13 +46,6 @@ CPU_Q = ('avg(rate(process_cpu_time_ns_total{job="taq"}[30s]) / 1e9) by (compone
         'sum(rate(container_cpu_usage_seconds_total{namespace="taq",container=~"nodo-.*"}[30s])) by (container) / sum(kube_pod_container_resource_requests{namespace="taq",resource="cpu",container=~"nodo-.*"}) by (container) * 100'
 add("timeseries", "CPU promedio por pod vs. objetivo (60 % de lo solicitado)", 12, y, 12, 8,
     [{"expr": CPU_Q, "legendFormat": "{{componente}}" if LOCAL else "{{container}}"}, linea(60, "objetivo 60 %")], "percent"); y += 8
-add("timeseries", "Réplicas deseadas por el autoescalador (HPA)", 0, y, 12, 6,
-    [{"expr": 'kube_horizontalpodautoscaler_status_desired_replicas{namespace="taq"}', "legendFormat": "{{horizontalpodautoscaler}} deseadas"}],
-    "short", "", None, {"decimals": 0, "min": 0, "custom": {"lineInterpolation": "stepAfter"}})
-add("timeseries", "Nodos del clúster listos", 12, y, 12, 6,
-    [{"expr": 'count(kube_node_status_condition{condition="Ready",status="true"})', "legendFormat": "nodos"}],
-    "short", "El autoescalador de nodos agrega máquinas cuando los pods no caben.", None, {"decimals": 0, "min": 0}); y += 6
-
 row("Hilo único de bd_bloqueo: ¿es el cuello de botella?", y); y += 1
 add("timeseries", "Operaciones por segundo del hilo único", 0, y, 8, 7,
     [{"expr": "sum(rate(taq_bloqueo_ops_total[30s]))", "legendFormat": "operaciones/s"}], "ops")
@@ -78,15 +67,8 @@ add("timeseries", "Solicitudes en conflicto: aprobadas vs. no aprobadas", 15, y,
 panels[-1]["fieldConfig"]["overrides"] = [
     {"matcher": {"id": "byName", "options": "aprobadas"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "green"}}]},
     {"matcher": {"id": "byName", "options": "no aprobadas"}, "properties": [{"id": "color", "value": {"mode": "fixed", "fixedColor": "red"}}]}]
-y += 8
-add("table", "Sillas en disputa: solicitudes canceladas por silla", 0, y, 12, 8,
-    [{"expr": "sort_desc(sum(taq_bloqueo_rechazo_asiento_total) by (asiento, motivo) - (sum(taq_bloqueo_rechazo_asiento_total offset $__range) by (asiento, motivo) or sum(taq_bloqueo_rechazo_asiento_total) by (asiento, motivo) * 0))", "instant": True, "format": "table"}],
-    "short", "", None, None, {"cellHeight": "sm"})
-panels[-1]["transformations"] = [{"id": "organize", "options": {"excludeByName": {"Time": True}, "renameByName": {"asiento": "Silla", "motivo": "Motivo", "Value": "Canceladas"}}}]
-add("timeseries", "Bloqueos activos y liberados por vencimiento (8 min)", 12, y, 12, 8,
-    [{"expr": "taq_bloqueos_activos", "legendFormat": "bloqueos activos"}, {"expr": "taq_bloqueo_liberados_total", "legendFormat": "liberados por vencimiento (acum.)"}])
 
-dash = {"uid": "exp2asr", "title": "EXP-2 ASR: E-1 escalabilidad y D-3 con réplicas", "schemaVersion": 39, "version": 2,
+dash = {"uid": "exp2asr", "title": "EXP-2 ASR: E-1 escalabilidad y D-3 con réplicas", "schemaVersion": 39, "version": 3,
         "refresh": "5s", "time": {"from": "now-25m", "to": "now"}, "panels": panels}
 cm = {"apiVersion": "v1", "kind": "ConfigMap",
       "metadata": {"name": "taq-dash-exp2", "namespace": "monitoring", "labels": {"grafana_dashboard": "1"}},
